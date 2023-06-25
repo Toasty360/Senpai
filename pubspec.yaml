@@ -1,0 +1,61 @@
+name: senpai
+description: lemme think first
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.5 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  get: ^4.6.5
+  dio: ^5.2.1+1
+  graphql_flutter: ^5.1.2
+  html: ^0.15.4
+  
+  material_design_icons_flutter: ^7.0.7296
+
+  bitsdojo_window: ^0.1.5
+  media_kit: ^0.0.11
+  # video_player_web_hls: ^1.0.0+3
+  media_kit_video: ^0.0.12
+  flutter_meedu_videoplayer: ^4.2.13
+  media_kit_native_event_loop: ^1.0.4                       
+  media_kit_libs_ios_video: ^1.0.4               
+  media_kit_libs_macos_video: ^1.0.5             
+  media_kit_libs_windows_video: ^1.0.2           
+  media_kit_libs_linux: ^1.0.2                   
+  string_similarity: ^2.0.0
+  toast: ^0.3.0
+  shimmer: ^3.0.0
+  hive: 
+  hive_flutter: 
+  path_provider: ^2.0.15
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+  build_runner: ^2.4.5
+  hive_generator: 
+
+
+flutter:
+
+  assets:
+    - assets/images/profilePic.jpg
+    - assets/images/female.jpg
+  fonts:
+    - family: Open_Sans
+      fonts:
+        - asset: fonts/static/Montserrat-Regular.ttf
+    - family: Takota
+      fonts:
+        - asset: fonts/static/FontsFree-Net-Takota.ttf
+  uses-material-design: true
