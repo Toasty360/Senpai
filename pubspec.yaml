@@ -36,6 +36,7 @@ dependencies:
   hive: 
   hive_flutter: 
   path_provider: ^2.0.15
+  flutter_launcher_icons: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -46,11 +47,19 @@ dev_dependencies:
   hive_generator: 
 
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: assets/images/Anya.jpg
+  
+
+
 flutter:
 
   assets:
     - assets/images/profilePic.jpg
     - assets/images/female.jpg
+    - assets/images/bg.jpg
   fonts:
     - family: Open_Sans
       fonts:

@@ -327,8 +327,8 @@ class _ScheduleState extends State<Schedule> {
                                         ),
                                         Positioned(
                                           top: screen.width < 800
-                                              ? screen.height * 0.24
-                                              : screen.height * 0.18,
+                                              ? screen.height * 0.27
+                                              : screen.height * 0.20,
                                           left: screen.width < 1200
                                               ? screen.width < 800
                                                   ? 0

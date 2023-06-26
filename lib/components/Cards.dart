@@ -8,7 +8,7 @@ import 'package:shimmer/shimmer.dart';
 class Cards extends StatelessWidget {
   final List<AnimeModel> data;
   final String subtext;
-  const Cards(this.data, this.subtext, {super.key});
+  Cards(this.data, this.subtext, {super.key});
 
   Widget MobileCards(ctx, index, screen) {
     return MouseRegion(
@@ -78,7 +78,9 @@ class Cards extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 10),
                     width: 200,
                     child: Text(
-                      data[index].title,
+                      data[index].is_hentai
+                          ? data[index].titles
+                          : data[index].title,
                       style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
@@ -188,6 +190,13 @@ class Cards extends StatelessWidget {
     );
   }
 
+  final Future<bool> _future = Future<bool>.delayed(
+    const Duration(milliseconds: 10),
+    () {
+      return false;
+    },
+  );
+
   @override
   Widget build(BuildContext context) {
     final widthCount = (MediaQuery.of(context).size.width ~/ 300).toInt();
@@ -198,37 +207,49 @@ class Cards extends StatelessWidget {
             ? data.isNotEmpty
                 ? ListView.builder(
                     shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
                     itemCount: data.length,
                     itemBuilder: (BuildContext context, int index) {
                       return MobileCards(context, index, screen);
                     },
                   )
-                : Shimmer.fromColors(
-                    baseColor: const Color(0xFF17203A),
-                    highlightColor: const Color.fromARGB(255, 58, 72, 115),
-                    enabled: true,
-                    child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: 3,
-                          itemBuilder: (context, index) {
-                            return Container(
-                                margin: const EdgeInsets.all(5),
-                                padding: const EdgeInsets.all(8),
-                                height: 200,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                    shape: BoxShape.rectangle,
-                                    color: const Color(0xFF17203A),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                          color: Colors.black26,
-                                          offset: Offset(0, 2),
-                                          blurRadius: 6)
-                                    ]));
-                          },
-                        )))
+                : FutureBuilder(
+                    future: _future,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return const Center(
+                          child: Text("No data!"),
+                        );
+                      }
+                      return Shimmer.fromColors(
+                          baseColor: const Color(0xFF17203A),
+                          highlightColor:
+                              const Color.fromARGB(255, 58, 72, 115),
+                          enabled: true,
+                          child: SingleChildScrollView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: 3,
+                                itemBuilder: (context, index) {
+                                  return Container(
+                                      margin: const EdgeInsets.all(5),
+                                      padding: const EdgeInsets.all(8),
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          shape: BoxShape.rectangle,
+                                          color: const Color(0xFF17203A),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                color: Colors.black26,
+                                                offset: Offset(0, 2),
+                                                blurRadius: 6)
+                                          ]));
+                                },
+                              )));
+                    })
             : data.isNotEmpty
                 ? Container(
                     margin: const EdgeInsets.symmetric(

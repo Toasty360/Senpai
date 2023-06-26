@@ -33,10 +33,10 @@ void main() async {
   ));
   doWhenWindowReady(() {
     final win = appWindow;
-    // const initialSize = Size(1200, 720);
-    // win.minSize = initialSize;
-    // win.size = initialSize;
-    // win.alignment = Alignment.center;
+    const initialSize = Size(1200, 720);
+    win.minSize = initialSize;
+    win.size = initialSize;
+    win.alignment = Alignment.center;
     win.title = "Toasty";
     win.show();
   });

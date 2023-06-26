@@ -54,83 +54,96 @@ class _LaterState extends State<Later> {
   Widget build(BuildContext context) {
     final widthCount = (MediaQuery.of(context).size.width ~/ 250).toInt();
     final screen = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: const Color(0xFF17203A),
-      body: SafeArea(
-        child: ListView(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            children: [
-              screen.width <= 600
-                  ? Padding(
+    return SafeArea(
+      child: ListView(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          children: [
+            screen.width <= 600
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                  onDoubleTap: () {
+                                    settings.toggleHentai();
+                                    setState(() {});
+                                  },
+                                  child: CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                      settings.enableHentai
+                                          ? "assets/images/female.jpg"
+                                          : "assets/images/profilePic.jpg",
+                                    ),
+                                    minRadius: 30,
+                                  )),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 8, top: 8, bottom: 8),
+                            child: Text(
+                              settings.enableHentai
+                                  ? "Perverted weeb list"
+                                  : "Weeb list!!",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: settings.enableHentai
+                                      ? Colors.deepOrangeAccent
+                                      : Colors.greenAccent),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 8, top: 8, bottom: 8),
+                            child: IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.sort),
+                                splashRadius: 25),
+                          )
+                        ]),
+                  )
+                : Container(
+                    // decoration: BoxDecoration(border: Border.all(width: 1)),
+                    alignment: Alignment.centerRight,
+                    child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                    onDoubleTap: () {
-                                      settings.toggleHentai();
-                                      setState(() {});
-                                    },
-                                    child: CircleAvatar(
-                                      backgroundImage: AssetImage(
-                                        settings.enableHentai
-                                            ? "assets/images/female.jpg"
-                                            : "assets/images/profilePic.jpg",
-                                      ),
-                                      minRadius: 30,
-                                    )),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, top: 8, bottom: 8),
-                              child: Text(
-                                settings.enableHentai
-                                    ? "Perverted weeb list"
-                                    : "Weeb list!!",
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: settings.enableHentai
-                                        ? Colors.deepOrangeAccent
-                                        : Colors.greenAccent),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 8, top: 8, bottom: 8),
-                              child: IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.sort),
-                                  hoverColor: Colors.greenAccent,
-                                  splashRadius: 10),
-                            )
-                          ]),
-                    )
-                  : const Center(),
-              ValueListenableBuilder(
-                valueListenable: _watchList.listenable(),
-                builder: (context, value, child) {
-                  var later = value.values.toList().cast<AnimeModel>();
-                  List<AnimeModel> hentaiData = [];
-                  List<AnimeModel> normalData = [];
-                  for (AnimeModel e in later) {
-                    e.is_hentai ? hentaiData.add(e) : normalData.add(e);
-                  }
-                  // later.map((e) {});
-                  print(normalData.length);
-                  return Cards(settings.enableHentai ? hentaiData : normalData,
-                      "geners");
-                },
-              )
-            ]),
-      ),
+                      child: IconButton(
+                          splashRadius: 25,
+                          onPressed: () {
+                            settings.toggleHentai();
+                            setState(() {});
+                          },
+                          icon: Icon(settings.enableHentai
+                              ? Icons.lock_open_rounded
+                              : Icons.lock_outline_rounded)),
+                    ),
+                  ),
+            ValueListenableBuilder(
+              valueListenable: _watchList.listenable(),
+              builder: (context, value, child) {
+                var later = value.values.toList().cast<AnimeModel>();
+                List<AnimeModel> hentaiData = [];
+                List<AnimeModel> normalData = [];
+                for (AnimeModel e in later) {
+                  e.is_hentai || e.geners.toLowerCase().contains("hentai")
+                      ? hentaiData.add(e)
+                      : normalData.add(e);
+                }
+                // later.map((e) {});
+                print(normalData.length);
+                return Cards(
+                    settings.enableHentai ? hentaiData : normalData, "geners");
+              },
+            )
+          ]),
     );
   }
 }
