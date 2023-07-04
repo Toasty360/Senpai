@@ -37,6 +37,7 @@ dependencies:
   hive_flutter: 
   path_provider: ^2.0.15
   flutter_launcher_icons: ^0.13.1
+  flutter_ffmpeg: ^0.4.2
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +46,8 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   build_runner: ^2.4.5
   hive_generator: 
+  build_test:
+  build_web_compilers: ^4.0.3
 
 
 flutter_launcher_icons:

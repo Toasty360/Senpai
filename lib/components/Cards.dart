@@ -101,6 +101,7 @@ class Cards extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.green),
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                       maxLines: 3,
                     ),
                   )

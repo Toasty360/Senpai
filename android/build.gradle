@@ -11,6 +11,10 @@ buildscript {
     }
 }
 
+ext {
+    flutterFFmpegPackage  = "https"
+}
+
 allprojects {
     repositories {
         google()

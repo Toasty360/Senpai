@@ -21,6 +21,7 @@ void main() async {
   Hive.registerAdapter(EpisodeModelAdapter());
   Hive.registerAdapter(AnimeModelAdapter());
   await Hive.openBox('Later');
+  await Hive.openBox('WatchedIndexs');
 
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,

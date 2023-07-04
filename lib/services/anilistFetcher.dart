@@ -134,8 +134,8 @@ class AniList {
 
   static Future<List<AnimeModel>> fetchRecent({page = 1}) async {
     if (hasNextPage) {
-      final response = await Dio()
-          .get("$base_url/meta/anilist/recent-episodes?page=$page");
+      final response =
+          await Dio().get("$base_url/meta/anilist/recent-episodes?page=$page");
       List<AnimeModel> data = [];
       for (Map e in response.data["results"]) {
         data.add(AnimeModel.toTopAir(e));
@@ -233,5 +233,11 @@ class AniList {
     print("total anilist---${data.length}");
     searchHasNext = response.data["hasNextPage"];
     return data;
+  }
+
+  static Future<AnimeModel> randomAnime() async {
+    final response = await Dio().get("$base_url/meta/anilist/random-anime");
+
+    return AnimeModel.toTopAir(response.data);
   }
 }
