@@ -6,9 +6,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:get/utils.dart';
 import 'package:hive_flutter/adapters.dart';
-// import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:senpai/data/anime.dart';
 import 'package:senpai/services/anilistFetcher.dart';
 import 'package:senpai/services/gogoFetcher.dart';
@@ -34,36 +32,23 @@ class _detailPageState extends State<detailPage> {
   String currentIndex = "";
   bool status = true;
   bool isLoaded = false;
-  // late AnimeDetails? anime = AnimeDetails.dummydata();
-  // late List<EpisodeModel> itemDetails;
-  // List ZoroData = [];
-  // AnimeDataController animedatacont = Get.put(AnimeDataController());
   bool isSaved = false;
-  // int savedIndex = -1;
   late MeeduPlayerController _meeduPlayerController;
   late List media;
   bool isMediaReady = false;
-  // final minCount = 4;
   late String streamer = "Gogoanime";
-  // late String gogoid;
   List hentaiData = [];
   List watchedIndex = [];
   int watchedIndexMonitor = 0;
 
   fetchData() async {
-    // print(widget.item.aniId);
-    // print(widget.item.malId);
-    // print(widget.item.title);
-
     if (widget.item.is_hentai) {
       fetchSequelhentai(widget.item.aniId).then((value) {
-        // print(value);
         hentaiData = value;
         setState(() {});
       });
     } else if (widget.item.geners.toLowerCase().contains("hentai")) {
       await fetchInfoByTitle(widget.item.title).then((temp) {
-        // print(temp);
         hentaiData = temp;
         setState(() {});
       });
@@ -97,20 +82,6 @@ class _detailPageState extends State<detailPage> {
             anime = temp;
           });
         }
-        // if (anime.episodes.isEmpty) {
-        //   await AniList.fetchInfo(widget.item.aniId, provider: "animepahe")
-        //       .then((temp) {
-        //     streamer = "animepahe";
-        //     if (temp.episodes.isEmpty) {
-        //       // print("No data from animepahe");
-        //       Toast.show("Not found in animepahe....implement another source ",
-        //           duration: Toast.lengthShort, gravity: Toast.bottom);
-        //     } else {
-        //       print('animepahe has: ${temp.episodes.length}');
-        //     }
-        //     anime = temp;
-        //   });
-        // }
         tempAniDetails[widget.item.title] = {
           "Anilist": anime,
           "source": streamer,
@@ -228,18 +199,6 @@ class _detailPageState extends State<detailPage> {
     anime = widget.item;
     hasData();
     getWatchedIndexs();
-
-    // if (tempAniDetails.containsKey(widget.item.title) &&
-    //     anime.status.toLowerCase() == "completed") {
-    //   print("saved data from tempaniDetails");
-    //   anime = tempAniDetails[widget.item.title]!["Anilist"];
-    //   streamer = tempAniDetails[widget.item.title]!["source"];
-    // } else if (widget.item.status.toLowerCase().contains("not")) {
-    //   print("No need to fetch the data ig");
-    // } else {
-    //   print("should fetch the data");
-    //   fetchData();
-    // }
     setState(() {});
   }
 
@@ -404,165 +363,181 @@ class _detailPageState extends State<detailPage> {
   }
 
   Widget episodesWidget() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const ClampingScrollPhysics(),
-      itemCount:
-          (anime.is_hentai || anime.geners.toLowerCase().contains("hentai"))
-              ? hentaiData.length
-              : anime.episodes.length,
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          onLongPress: () {
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: const Color(0xFF17203A),
-              showDragHandle: true,
-              isDismissible: true,
-              builder: (context) {
-                return Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10))),
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("Wanna download?"),
-                          TextButton(
-                              onPressed: () {}, child: const Text("Aye!"))
-                        ],
-                      ),
-                      FutureBuilder(
-                        future: downloadLinks(anime.episodes[index].id),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return GridView.builder(
-                              shrinkWrap: true,
-                              itemCount: snapshot.data!.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4),
-                              itemBuilder: (context, _index) {
-                                var key = snapshot.data!.keys.toList()[_index];
-                                return TextButton(
-                                    onPressed: () {
-                                      context.navigator.pop();
-                                      convertM3U8toMP4(
-                                        m3u8Url: snapshot.data![key],
-                                        name: anime.episodes[index].title,
-                                        title: anime.title,
-                                      );
-                                      Toast.show("Downloding Started!",
-                                          duration: Toast.lengthShort);
-                                    },
-                                    child: Text(
-                                        snapshot.data!.keys.toList()[_index]));
-                              },
-                            );
-                          }
-                          return Center();
-                        },
-                      )
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-          onTap: () {
-            watchedIndex.add(index);
-            !(anime.is_hentai || anime.geners.toLowerCase().contains("hentai"))
-                ? Toast.show(
-                    "Loading video: Episode ${anime.episodes[index].number}",
-                    backgroundColor: const Color(0xFF17203A),
-                    textStyle: const TextStyle(color: Colors.green),
-                    duration: Toast.lengthShort,
-                    gravity: Toast.bottom)
-                : null;
-            currentIndex = (anime.is_hentai ||
-                    anime.geners.toLowerCase().contains("hentai"))
-                ? hentaiData[index]["sources"][0]["url"]
-                : anime.episodes[index].id;
-            readyPlayer(currentIndex, index);
-          },
-          child: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: Container(
-                height: 150,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black26,
-                          offset: Offset(0, 2),
-                          blurRadius: 6)
-                    ],
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      opacity: watchedIndex.contains(index) ? 0.2 : 1,
-                      colorFilter: const ColorFilter.srgbToLinearGamma(),
-                      scale: 1.5,
-                      image: NetworkImage(
-                          (anime.is_hentai ||
-                                  anime.geners.toLowerCase().contains("hentai"))
-                              ? hentaiData[index]["poster"]
-                              : anime.episodes[index].image,
-                          scale: 1.5),
-                      onError: (exception, stackTrace) {
-                        Container(
-                            color: Colors.amber,
-                            alignment: Alignment.center,
-                            child: const Text(
-                              'Whoops!',
-                              style: TextStyle(fontSize: 20),
-                            ));
-                      },
-                    )),
-                child: Container(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  alignment: Alignment.bottomCenter,
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, childAspectRatio: 16 / 9, crossAxisSpacing: 10),
+        scrollDirection: Axis.vertical,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        itemCount:
+            (anime.is_hentai || anime.geners.toLowerCase().contains("hentai"))
+                ? hentaiData.length
+                : anime.episodes.length,
+        itemBuilder: (context, index) {
+          return InkWell(
+            onLongPress: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: const Color(0xFF17203A),
+                showDragHandle: true,
+                isDismissible: true,
+                builder: (context) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10))),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const ClampingScrollPhysics(),
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text("Wanna download?"),
+                            TextButton(
+                                onPressed: () {}, child: const Text("Aye!"))
+                          ],
+                        ),
+                        FutureBuilder(
+                          future: downloadLinks(anime.episodes[index].id),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return GridView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshot.data!.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 4),
+                                itemBuilder: (context, _index) {
+                                  var key =
+                                      snapshot.data!.keys.toList()[_index];
+                                  return TextButton(
+                                      onPressed: () {
+                                        context.navigator.pop();
+                                        convertM3U8toMP4(
+                                          m3u8Url: snapshot.data![key],
+                                          name: anime.episodes[index].title,
+                                          title: anime.title,
+                                        );
+                                        Toast.show("Downloding Started!",
+                                            duration: Toast.lengthShort);
+                                      },
+                                      child: Text(snapshot.data!.keys
+                                          .toList()[_index]));
+                                },
+                              );
+                            }
+                            return Center();
+                          },
+                        )
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+            onTap: () {
+              watchedIndex.add(index);
+              !(anime.is_hentai ||
+                      anime.geners.toLowerCase().contains("hentai"))
+                  ? Toast.show(
+                      "Loading video: Episode ${anime.episodes[index].number}",
+                      backgroundColor: const Color(0xFF17203A),
+                      textStyle: const TextStyle(color: Colors.green),
+                      duration: Toast.lengthShort,
+                      gravity: Toast.bottom)
+                  : null;
+              currentIndex = (anime.is_hentai ||
+                      anime.geners.toLowerCase().contains("hentai"))
+                  ? hentaiData[index]["sources"][0]["url"]
+                  : anime.episodes[index].id;
+              readyPlayer(currentIndex, index);
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Container(
+                  height: 150,
+                  margin: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      backgroundBlendMode: watchedIndex.contains(index)
-                          ? BlendMode.dstOver
-                          : BlendMode.darken,
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.black54),
-                  child: ListTile(
-                    mouseCursor: SystemMouseCursors.click,
-                    title: Text(
-                      (anime.is_hentai ||
-                              anime.geners.toLowerCase().contains("hentai"))
-                          ? hentaiData[index]["name"]
-                          : anime.episodes[index].title,
-                      style: const TextStyle(
-                          color: Colors.green, overflow: TextOverflow.ellipsis),
-                      textAlign: TextAlign.center,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Colors.black26,
+                            offset: Offset(0, 2),
+                            blurRadius: 6)
+                      ],
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        opacity: watchedIndex.contains(index) ? 0.2 : 1,
+                        colorFilter: const ColorFilter.srgbToLinearGamma(),
+                        scale: 1.5,
+                        image: NetworkImage(
+                            (anime.is_hentai ||
+                                    anime.geners
+                                        .toLowerCase()
+                                        .contains("hentai"))
+                                ? hentaiData[index]["poster"]
+                                : anime.episodes[index].image,
+                            scale: 1.5),
+                        onError: (exception, stackTrace) {
+                          Container(
+                              color: Colors.amber,
+                              alignment: Alignment.center,
+                              child: const Text(
+                                'Whoops!',
+                                style: TextStyle(fontSize: 20),
+                              ));
+                        },
+                      )),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 10),
+                    alignment: Alignment.bottomCenter,
+                    decoration: BoxDecoration(
+                        backgroundBlendMode: watchedIndex.contains(index)
+                            ? BlendMode.dstOver
+                            : BlendMode.darken,
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.black54),
+                    child: ListTile(
+                      mouseCursor: SystemMouseCursors.click,
+                      title: Text(
+                        (anime.is_hentai ||
+                                anime.geners.toLowerCase().contains("hentai"))
+                            ? hentaiData[index]["name"]
+                            : anime.episodes[index].title,
+                        style: const TextStyle(
+                            color: Colors.green,
+                            overflow: TextOverflow.ellipsis),
+                        textAlign: TextAlign.center,
+                      ),
+                      subtitle: Text(
+                        (anime.is_hentai ||
+                                anime.geners.toLowerCase().contains("hentai"))
+                            ? hentaiData[index]["id"].toString()
+                            : anime.episodes[index].number.toString(),
+                        style: TextStyle(
+                            color: (anime.is_hentai ||
+                                    anime.geners
+                                        .toLowerCase()
+                                        .contains("hentai"))
+                                ? Colors.greenAccent
+                                : Colors.green),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    subtitle: Text(
-                      (anime.is_hentai ||
-                              anime.geners.toLowerCase().contains("hentai"))
-                          ? hentaiData[index]["id"].toString()
-                          : anime.episodes[index].number.toString(),
-                      style: TextStyle(
-                          color: (anime.is_hentai ||
-                                  anime.geners.toLowerCase().contains("hentai"))
-                              ? Colors.greenAccent
-                              : Colors.green),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )),
-          ),
-        );
-      },
+                  )),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -631,16 +606,12 @@ class _detailPageState extends State<detailPage> {
             ? Container(
                 height: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: ListView(
                   children: [
-                    Expanded(flex: 3, child: animeDetailsWidget(screen)),
-                    anime.episodes.isNotEmpty || hentaiData.isNotEmpty
-                        ? Expanded(flex: 1, child: episodesWidget())
-                        : const Center()
+                    animeDetailsWidget(screen),
+                    episodesWidget(),
                   ],
-                ),
-              )
+                ))
             : ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 physics: const ClampingScrollPhysics(),

@@ -42,3 +42,5 @@ void main() async {
     win.show();
   });
 }
+
+// flutter build appbundle --target-platform android-arm64 --analyze-size

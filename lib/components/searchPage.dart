@@ -21,6 +21,7 @@ class _searchState extends State<search> {
   bool isLoaded = false;
   bool isDataNew = false;
   late String currentSearch = "";
+  final focus = FocusNode();
 
   getAnime(var value) async {
     print(page);
@@ -58,58 +59,7 @@ class _searchState extends State<search> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  TextField(
-                    style: const TextStyle(color: Colors.white),
-                    controller: _controller,
-                    decoration: InputDecoration(
-                        border: const UnderlineInputBorder(),
-                        hintText: "Search",
-                        fillColor: Colors.white,
-                        hintStyle: const TextStyle(color: Colors.white),
-                        suffixIcon: IconButton(
-                          icon: const Icon(Icons.cancel, color: Colors.white),
-                          onPressed: () {
-                            _controller.clear();
-                          },
-                        )),
-                    onSubmitted: (String value) {
-                      if (_controller.text != "") {
-                        print("Searching ig");
-                        data = [];
-                        page = 1;
-                        currentSearch = _controller.text;
-                        loader = const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Text(
-                                "Please wait fetching the anime!",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ]);
-                        setState(() {});
-                        // isDataNew = true;
-                        getAnime(currentSearch);
-                        if (settings.enableHentai) {
-                          Future.delayed(const Duration(milliseconds: 5), () {
-                            HentaiHome(searchfor: currentSearch).then((value) {
-                              setState(() {
-                                data.addAll(value);
-                              });
-                            });
-                          });
-                        }
-                      } else {
-                        page = 1;
-                        data = [];
-                        goterror = true;
-                        setState(() {});
-                      }
-                    },
-                  ),
+                  
                   Container(
                     height: 10,
                     color: Colors.transparent,
