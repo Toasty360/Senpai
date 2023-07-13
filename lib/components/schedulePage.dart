@@ -7,7 +7,8 @@ import 'package:senpai/data/anime.dart';
 import 'package:senpai/services/anilistFetcher.dart';
 
 class Schedule extends StatefulWidget {
-  const Schedule({super.key});
+  final ScrollController scrollController;
+  const Schedule({super.key, required this.scrollController});
 
   @override
   State<Schedule> createState() => _ScheduleState();
@@ -73,6 +74,7 @@ class _ScheduleState extends State<Schedule> {
           child: data.isNotEmpty
               ? (screen.width <= 600
                   ? ListView.builder(
+                      controller: widget.scrollController,
                       itemCount: data.length,
                       itemBuilder: (context, index) {
                         return MouseRegion(

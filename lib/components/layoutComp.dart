@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:senpai/components/laterPage.dart';
 import 'package:senpai/components/recentPage.dart';
 import 'package:senpai/components/schedulePage.dart';
@@ -20,6 +22,8 @@ class LayoutComp extends StatefulWidget {
 class LayoutCompState extends State<LayoutComp> {
   FocusNode _focus = FocusNode();
 
+  ScrollController scrollController = ScrollController();
+
   int index = 1;
   // File file = File("'../../assets/images/profilePic.jpg'");
   @override
@@ -27,15 +31,18 @@ class LayoutCompState extends State<LayoutComp> {
     ToastContext().init(context);
 
     List<Widget> pages = [
-      const trendingPage(),
-      const Later(),
-      const search(),
-      const RecentEpisodes(),
-      const Schedule(),
+      trendingPage(scrollController: scrollController),
+      Later(scrollController: scrollController),
+      search(scrollController: scrollController),
+      RecentEpisodes(scrollController: scrollController),
+      Schedule(scrollController: scrollController),
     ];
+    Size screen = MediaQuery.of(context).size;
     return Scaffold(
         body: MediaQuery.of(context).size.width > 600
-            ? Row(
+            ? ListView(
+                controller: scrollController,
+                shrinkWrap: true,
                 children: [
                   ConstrainedBox(
                     constraints: BoxConstraints(
@@ -52,6 +59,7 @@ class LayoutCompState extends State<LayoutComp> {
                             selectedIconTheme:
                                 const IconThemeData(color: Colors.greenAccent),
                             leading: InkWell(
+                                borderRadius: BorderRadius.circular(10),
                                 onDoubleTap: () {
                                   settings.toggleHentai();
                                   setState(() {});
@@ -119,24 +127,17 @@ class LayoutCompState extends State<LayoutComp> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: pages[index],
-                    ),
-                  ),
+                  pages[index]
                 ],
               )
             : Container(
+                width: screen.width,
+                height: screen.height,
                 padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: IndexedStack(
-                  index: index,
-                  children: pages,
-                )),
+                child: pages[index]),
         backgroundColor: const Color(0xFF17203A),
         bottomNavigationBar: MediaQuery.of(context).size.width <= 600
             ? BottomNavigationBar(
-                elevation: 0,
                 mouseCursor: SystemMouseCursors.click,
                 type: BottomNavigationBarType.fixed,
                 selectedFontSize: 15,
@@ -146,21 +147,29 @@ class LayoutCompState extends State<LayoutComp> {
                 selectedLabelStyle:
                     const TextStyle(fontWeight: FontWeight.bold),
                 backgroundColor: const Color(0xFF17203A),
-                items: const <BottomNavigationBarItem>[
+                items: <BottomNavigationBarItem>[
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.trending_up), label: "Trends"),
+                      icon: Icon(MdiIcons.trendingUp), label: "Trends"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.bookmark), label: "Later"),
+                      activeIcon: Icon(MdiIcons.bookmarkBox),
+                      icon: Icon(MdiIcons.bookmarkBoxOutline),
+                      label: "Later"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.search), label: "Search"),
+                      icon: Icon(MdiIcons.magnify), label: "Search"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.all_inclusive), label: "Latest"),
+                      icon: Icon(MdiIcons.divingScuba), label: "Latest"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.schedule), label: "Next"),
+                      icon: Icon(MdiIcons.calendarClockOutline), label: "Next"),
                 ],
                 currentIndex: index,
                 onTap: (value) {
                   index = value;
+                  if (scrollController.hasClients) {
+                    scrollController.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.fastOutSlowIn);
+                  }
+
                   setState(() {});
                 },
               )

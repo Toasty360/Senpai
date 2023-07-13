@@ -38,6 +38,10 @@ dependencies:
   path_provider: ^2.0.15
   flutter_launcher_icons: ^0.13.1
   flutter_ffmpeg: ^0.4.2
+  dpad_container: ^2.0.4
+  permission_handler: ^10.4.2
+  percent_indicator: ^4.2.3
+  lottie: ^2.4.0
 
 dev_dependencies:
   flutter_test:

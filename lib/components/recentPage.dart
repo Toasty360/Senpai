@@ -7,7 +7,8 @@ import 'package:senpai/data/anime.dart';
 import 'package:senpai/services/anilistFetcher.dart';
 
 class RecentEpisodes extends StatefulWidget {
-  const RecentEpisodes({super.key});
+  final ScrollController scrollController;
+  const RecentEpisodes({super.key, required this.scrollController});
 
   @override
   State<RecentEpisodes> createState() => _RecentEpisodesState();
@@ -71,7 +72,12 @@ class _RecentEpisodesState extends State<RecentEpisodes> {
         },
         child: isLoaded
             ? RefreshIndicator(
-                onRefresh: () => refreshData(), child: Cards(list, ""))
+                onRefresh: () => refreshData(),
+                child: Cards(
+                  scrollController: widget.scrollController,
+                  list,
+                  "",
+                ))
             : const Center(
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

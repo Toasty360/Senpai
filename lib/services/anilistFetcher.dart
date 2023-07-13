@@ -109,12 +109,15 @@ class AniList {
                 .ceil(),
         'page': page,
       }));
-      hasNext = query.data?["Page"]["pageInfo"]["hasNextPage"];
-      for (Map e in query.data?["Page"]["airingSchedules"]) {
-        data.add(ScheduleModel.fromJson(e));
+      try {
+        hasNext = query.data?["Page"]["pageInfo"]["hasNextPage"] ?? false;
+
+        for (Map e in query.data?["Page"]["airingSchedules"]) {
+          data.add(ScheduleModel.fromJson(e));
+        }
+      } catch (e) {
+        print(e);
       }
-      // var temp = query.data?["Page"]["airingSchedules"]
-      //     .map((item) => ScheduleModel.fromJson(json));
       print(data.length);
 
       return data;
@@ -134,13 +137,18 @@ class AniList {
 
   static Future<List<AnimeModel>> fetchRecent({page = 1}) async {
     if (hasNextPage) {
+      print("called for Latest");
       final response =
-          await Dio().get("$base_url/meta/anilist/recent-episodes?page=$page");
+          await Dio().get("$base_url/meta/anilist/recent-episodes?page=$page",
+              options: Options(
+                validateStatus: (status) => true,
+              ));
       List<AnimeModel> data = [];
       for (Map e in response.data["results"]) {
         data.add(AnimeModel.toTopAir(e));
       }
-      hasNextPage = response.data["hasNextPage"];
+      print("at latest ${data.length}");
+      hasNextPage = response.data["hasNextPage"] ?? false;
       return data;
     }
     return [];
@@ -239,5 +247,35 @@ class AniList {
     final response = await Dio().get("$base_url/meta/anilist/random-anime");
 
     return AnimeModel.toTopAir(response.data);
+  }
+
+  static bool advSearchHasNext = true;
+  static Future<List<AnimeModel>> advancedSearch(List<String> genres,
+      {page = "1"}) async {
+    String qry = "";
+    if (genres.isNotEmpty) {
+      String gn = genres
+          .toString()
+          .replaceAll(" ", "")
+          .replaceAll(",", '","')
+          .replaceAll("[", '["')
+          .replaceAll("]", '"]');
+      qry = "&genres=$gn";
+    }
+    print("$base_url/meta/anilist/advanced-search?page=$page$qry");
+
+    List<AnimeModel> data = [];
+    final res =
+        await Dio().get('$base_url/meta/anilist/advanced-search?page=$page$qry',
+            options: Options(
+              validateStatus: (status) => true,
+            ));
+    for (Map e in res.data["results"]) {
+      data.add(AnimeModel.toTopAir(e));
+    }
+    advSearchHasNext = res.data["hasNextPage"];
+
+    print(data.length);
+    return data;
   }
 }

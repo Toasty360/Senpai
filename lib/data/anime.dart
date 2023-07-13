@@ -135,7 +135,7 @@ class AnimeModel {
           : json["genres"].toString().replaceAll(RegExp(r'[\[\]]'), ""),
       json["totalEpisodes"].toString(),
       json["type"] ?? "",
-      temp,
+      temp.reversed.toList(),
       json["episodeNumber"] != null ? json["episodeNumber"].toString() : "",
       json["episodeTitle"] != null ? json["episodeTitle"].toString() : "",
       json["titles"] != null ? json["titles"][0] : "",
