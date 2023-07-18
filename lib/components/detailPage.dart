@@ -941,11 +941,6 @@ class _detailPageState extends State<detailPage>
             ),
           ),
           actions: [
-            TextButton(
-                onPressed: () {
-                  convertM3U8toMP4();
-                },
-                child: Text("d")),
             screen.width >= 600
                 ? Container(
                     height: 50,
