@@ -1,16 +1,16 @@
 import 'dart:io';
-
+import '../services/anilistFetcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:senpai/settings.dart';
+import '../Settings.dart';
 
 class MediaPlayer extends StatefulWidget {
   final File? videoFile;
   final bool isM3u8;
   final String? m3u8Url;
-  final Map? quality;
+  final String? id;
   final bool? isHentai;
 
   const MediaPlayer(
@@ -18,7 +18,7 @@ class MediaPlayer extends StatefulWidget {
       this.videoFile,
       required this.isM3u8,
       this.m3u8Url,
-      this.quality,
+      this.id,
       this.isHentai});
 
   @override
@@ -65,6 +65,8 @@ class _MediaPlayerState extends State<MediaPlayer> {
     autoHideControls: true,
   );
   String currentQuality = "";
+  Map quality = {};
+
   @override
   void initState() {
     SystemChrome.setPreferredOrientations([
@@ -97,128 +99,101 @@ class _MediaPlayerState extends State<MediaPlayer> {
   }
 
   readym3u8() {
-    _controller.bottomRight = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        InkWell(
-          onTap: () {
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: const Color(0xFF17203A),
-              showDragHandle: true,
-              isDismissible: true,
-              builder: (ctx) {
-                return Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(left: 20),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10)),
-                    ),
-                    child: GridView.builder(
-                      cacheExtent: 20,
-                      padding: null,
-                      shrinkWrap: true,
-                      itemCount: widget.quality!.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: widget.quality!.length),
-                      itemBuilder: (context, index) {
-                        String _current = widget.quality!.keys.toList()[index];
-                        return Container(
-                          alignment: Alignment.center,
-                          child: InkWell(
-                              onTap: () {
-                                currentQuality = widget.quality![_current];
-                                var duration = _controller.sliderPosition.value;
-                                settings.qualityChoice = _current;
-                                ctx.navigator.pop();
-                                setState(() {
-                                  _controller.setDataSource(
-                                    DataSource(
-                                      type: DataSourceType.network,
-                                      source: currentQuality,
-                                    ),
-                                    autoplay: true,
-                                  );
-                                  _controller.seekTo(duration);
-                                });
-                              },
-                              child: Text(
-                                widget.quality!.keys.toList()[index],
-                                style: TextStyle(
-                                    color: settings.qualityChoice == _current
-                                        ? Colors.blueAccent
-                                        : Colors.white),
-                              )),
-                        );
-                      },
-                    ));
-              },
-            );
-          },
-          child: const Icon(Icons.high_quality),
+    AniList.fetchSteamingLinks(widget.id!).then((response) {
+      for (Map e in response) {
+        quality[e["quality"]] = e["url"];
+      }
+      _controller.bottomRight = Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          InkWell(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: const Color(0xFF17203A),
+                showDragHandle: true,
+                isDismissible: true,
+                builder: (ctx) {
+                  return Container(
+                      alignment: Alignment.center,
+                      margin: const EdgeInsets.only(left: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10)),
+                      ),
+                      child: GridView.builder(
+                        cacheExtent: 20,
+                        padding: null,
+                        shrinkWrap: true,
+                        itemCount: quality.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: quality.length),
+                        itemBuilder: (context, index) {
+                          String _current = quality.keys.toList()[index];
+                          return Container(
+                            alignment: Alignment.center,
+                            child: InkWell(
+                                onTap: () {
+                                  currentQuality = quality[_current];
+                                  var duration =
+                                      _controller.sliderPosition.value;
+                                  settings.qualityChoice = _current;
+                                  ctx.navigator.pop();
+                                  setState(() {
+                                    _controller.setDataSource(
+                                      DataSource(
+                                        type: DataSourceType.network,
+                                        source: currentQuality,
+                                      ),
+                                      autoplay: true,
+                                    );
+                                    _controller.seekTo(duration);
+                                  });
+                                },
+                                child: Text(
+                                  quality.keys.toList()[index],
+                                  style: TextStyle(
+                                      color: settings.qualityChoice == _current
+                                          ? Colors.blueAccent
+                                          : Colors.white),
+                                )),
+                          );
+                        },
+                      ));
+                },
+              );
+            },
+            child: const Icon(Icons.high_quality),
+          ),
+          InkWell(
+            child: IconButton(
+                onPressed: () {
+                  Duration temp = _controller.sliderPosition.value;
+                  _controller
+                      .seekTo(temp + const Duration(minutes: 1, seconds: 25));
+                },
+                tooltip: "Skip Openning",
+                icon: const Icon(
+                  Icons.double_arrow_rounded,
+                  color: Colors.white,
+                )),
+          ),
+        ],
+      );
+      _controller.setDataSource(
+        DataSource(
+          type: DataSourceType.network,
+          source: currentQuality != ""
+              ? currentQuality
+              : quality[settings.qualityChoice] ?? quality["default"],
         ),
-        // InkWell(
-        //   child: PopupMenuButton(
-        //     color: Colors.black,
-        //     tooltip: "Quality",
-        //     child: const Icon(Icons.quora_outlined),
-        //     itemBuilder: (context) {
-        //       return List.generate(widget.quality!.length, (index) {
-        //         String _current = widget.quality!.keys.toList()[index];
-        //         return PopupMenuItem(
-        //             enabled: !(_current == settings.qualityChoice),
-        //             onTap: () {
-        //               currentQuality = widget.quality![_current];
-        //               var duration = _controller.sliderPosition.value;
-        //               settings.qualityChoice = _current;
-        //               setState(() {
-        //                 _controller.setDataSource(
-        //                   DataSource(
-        //                     type: DataSourceType.network,
-        //                     source: currentQuality,
-        //                   ),
-        //                   autoplay: true,
-        //                 );
-        //                 _controller.seekTo(duration);
-        //               });
-        //             },
-        //             child: Text(
-        //               _current,
-        //               style: TextStyle(
-        //                   color: settings.qualityChoice == _current
-        //                       ? Colors.blueAccent
-        //                       : Colors.white),
-        //             ));
-        //       });
-        //     },
-        //   ),
-        // ),
-        InkWell(
-          child: IconButton(
-              onPressed: () {
-                Duration temp = _controller.sliderPosition.value;
-                _controller
-                    .seekTo(temp + const Duration(minutes: 1, seconds: 25));
-              },
-              tooltip: "Skip Openning",
-              icon: const Icon(Icons.double_arrow_rounded)),
-        ),
-      ],
-    );
-    _controller.setDataSource(
-      DataSource(
-        type: DataSourceType.network,
-        source: currentQuality != ""
-            ? currentQuality
-            : widget.quality![settings.qualityChoice] ??
-                widget.quality!["default"],
-      ),
-      autoplay: true,
-    );
+        autoplay: true,
+      );
+      setState(() {});
+    });
   }
 
   @override

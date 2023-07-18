@@ -705,7 +705,16 @@ class _detailPageState extends State<detailPage>
                             ? hentaiData[index]["sources"][0]["url"]
                             : _filteredEpisodes[index].id;
                         watchedIndex.add(index);
-                        readyPlayer(currentIndex, index);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MediaPlayer(
+                                isM3u8: true,
+                                id: _filteredEpisodes[index].id,
+                                isHentai: false,
+                              ),
+                            ));
+                        // readyPlayer(currentIndex, index);
                       }
                     },
                     child: Container(
@@ -1048,15 +1057,15 @@ class _detailPageState extends State<detailPage>
           quality[e["quality"]] = e["url"];
         }
         // ignore: use_build_context_synchronously
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MediaPlayer(
-                isM3u8: true,
-                quality: quality,
-                isHentai: false,
-              ),
-            ));
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => MediaPlayer(
+        //         isM3u8: true,
+        //         quality: quality,
+        //         isHentai: false,
+        //       ),
+        //     ));
       });
     }
   }
