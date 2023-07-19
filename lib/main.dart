@@ -7,11 +7,15 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:senpai/components/layoutComp.dart';
+import 'services/anilistFetcher.dart';
 
 import 'data/anime.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  var t = AniList.fetchTopAir();
+  var r = AniList.fetchRecent();
+  var s = AniList.fetchSchedule();
   initMeeduPlayer();
   await Hive.initFlutter(
     (await Directory(
@@ -37,7 +41,9 @@ void main() async {
         useMaterial3: true,
         // fontFamily: 'Open_Sans',
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF17203A))),
-    home: const LayoutComp(),
+    home: LayoutComp(
+      preFetch: [t, r, s],
+    ),
   ));
   try {
     doWhenWindowReady(() {

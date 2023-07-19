@@ -84,15 +84,50 @@ class _MediaPlayerState extends State<MediaPlayer> {
     } else {
       _controller.setDataSource(
           DataSource(type: DataSourceType.file, file: widget.videoFile!));
-      _controller.bottomRight = InkWell(
-        child: IconButton(
-            onPressed: () {
-              Duration temp = _controller.sliderPosition.value;
-              _controller
-                  .seekTo(temp + const Duration(minutes: 1, seconds: 25));
-            },
-            tooltip: "Skip Openning",
-            icon: Icon(MdiIcons.fastForwardOutline)),
+      _controller.bottomRight = Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          InkWell(
+            child: IconButton(
+                onPressed: () {
+                  Duration temp = _controller.sliderPosition.value;
+                  _controller
+                      .seekTo(temp + const Duration(minutes: 1, seconds: 25));
+                },
+                tooltip: "Skip Openning",
+                icon: Icon(MdiIcons.fastForwardOutline)),
+          ),
+          // InkWell(
+          //   child: PopupMenuButton(
+          //     icon: const Icon(Icons.one_x_mobiledata_rounded),
+          //     itemBuilder: (context) {
+          //       return [];
+          //     },
+          //     [
+          //       DropdownMenuItem(
+          //         value: 0.5,
+          //         child: Text("0.5x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 1.0,
+          //         child: Text("1x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 1.5,
+          //         child: Text("1.5x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 2.0,
+          //         child: Text("2x"),
+          //       ),
+          //     ],
+          //     onChanged: (value) {
+          //       _controller.setPlaybackSpeed(value!);
+          //     },
+          //   ),
+          // )
+        ],
       );
     }
     super.initState();
@@ -181,6 +216,33 @@ class _MediaPlayerState extends State<MediaPlayer> {
                   color: Colors.white,
                 )),
           ),
+          // InkWell(
+          //   child: DropdownButton(
+          //     icon: const Icon(Icons.one_x_mobiledata_rounded),
+          //     underline: const SizedBox(),
+          //     items: const [
+          //       DropdownMenuItem(
+          //         value: 0.5,
+          //         child: Text("0.5x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 1.0,
+          //         child: Text("1x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 1.5,
+          //         child: Text("1.5x"),
+          //       ),
+          //       DropdownMenuItem(
+          //         value: 2.0,
+          //         child: Text("2x"),
+          //       ),
+          //     ],
+          //     onChanged: (value) {
+          //       _controller.setPlaybackSpeed(value!);
+          //     },
+          //   ),
+          // )
         ],
       );
       _controller.setDataSource(

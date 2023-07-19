@@ -8,7 +8,9 @@ import 'package:senpai/services/anilistFetcher.dart';
 
 class RecentEpisodes extends StatefulWidget {
   final ScrollController scrollController;
-  const RecentEpisodes({super.key, required this.scrollController});
+  final Future<List<AnimeModel>> data;
+  const RecentEpisodes(
+      {super.key, required this.scrollController, required this.data});
 
   @override
   State<RecentEpisodes> createState() => _RecentEpisodesState();
@@ -30,10 +32,23 @@ class _RecentEpisodesState extends State<RecentEpisodes> {
     }
   }
 
+  preFetch() async {
+    await widget.data.then((value) {
+      if (value.isNotEmpty) {
+        list = value;
+        isLoaded = true;
+        page++;
+      } else {
+        fetchdata();
+      }
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    if (list.isEmpty) fetchdata();
+    if (list.isEmpty) preFetch();
   }
 
   refreshData() async {
@@ -49,60 +64,58 @@ class _RecentEpisodesState extends State<RecentEpisodes> {
 
   @override
   Widget build(BuildContext context) {
-    final widthCount = (MediaQuery.of(context).size.width ~/ 300).toInt();
-    final screen = MediaQuery.of(context).size;
-    const minCount = 4;
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF17203A),
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          if (notification.metrics.pixels ==
-                  notification.metrics.maxScrollExtent &&
-              AniList.hasNextPage &&
-              isLoaded) {
-            isLoaded = false;
-            Future.microtask(
-              () async {
-                fetchdata();
-              },
-            );
-          }
-          return true;
-        },
-        child: isLoaded
-            ? RefreshIndicator(
-                onRefresh: () => refreshData(),
-                child: Cards(
-                  scrollController: widget.scrollController,
-                  list,
-                  "",
-                ))
-            : const Center(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                    CircularProgressIndicator(),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    Text(
-                      "Please wait fetching the latest episodes!",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ])),
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: const Color(0xFF17203A),
+        body: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.pixels ==
+                    notification.metrics.maxScrollExtent &&
+                AniList.hasNextPage &&
+                isLoaded) {
+              isLoaded = false;
+              Future.microtask(
+                () async {
+                  fetchdata();
+                },
+              );
+            }
+            return true;
+          },
+          child: isLoaded
+              ? RefreshIndicator(
+                  onRefresh: () => refreshData(),
+                  child: Cards(
+                    scrollController: widget.scrollController,
+                    list,
+                    "",
+                  ))
+              : const Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                      CircularProgressIndicator(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        "Please wait fetching the latest episodes!",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ])),
+        ),
+        // floatingActionButton: FloatingActionButton(
+        //     onPressed: () async {
+        //       if (list != []) {
+        //         page += 1;
+        //       }
+        //       List<RecentEps> data = await AnimeApi.getRecentEps("$page");
+        //       setState(() {
+        //         list.addAll(data);
+        //       });
+        //     },
+        //     child: const Icon(Icons.format_list_bulleted_add)),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //     onPressed: () async {
-      //       if (list != []) {
-      //         page += 1;
-      //       }
-      //       List<RecentEps> data = await AnimeApi.getRecentEps("$page");
-      //       setState(() {
-      //         list.addAll(data);
-      //       });
-      //     },
-      //     child: const Icon(Icons.format_list_bulleted_add)),
     );
   }
 

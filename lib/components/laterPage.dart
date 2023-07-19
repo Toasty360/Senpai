@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:lottie/lottie.dart';
 import 'package:senpai/components/Cards.dart';
 import 'package:senpai/components/MediaPlayer.dart';
 import 'package:senpai/components/detailPage.dart';
@@ -210,6 +212,9 @@ class _LaterState extends State<Later> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge,
+        overlays: [SystemUiOverlay.top]);
     final screen = MediaQuery.of(context).size;
     return Container(
       child: screen.width <= 600
@@ -274,14 +279,11 @@ class _LaterState extends State<Later> {
                                       textStyle: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.lightBlue));
-                                  AnimeModel _item =
-                                      await AniList.randomAnime();
-                                  // ignore: use_build_context_synchronously
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => detailPage(_item),
-                                      ));
+                                          builder: (context) =>
+                                              const RandomSplash()));
                                 },
                                 icon: const Icon(Icons.auto_awesome_outlined,
                                     size: 22),
@@ -292,6 +294,28 @@ class _LaterState extends State<Later> {
                   listItems()
                 ])
           : listItems(),
+    );
+  }
+}
+
+class RandomSplash extends StatelessWidget {
+  const RandomSplash({super.key});
+
+  Widget build(BuildContext context) {
+    AniList.randomAnime().then((value) {
+      context.navigator.pop();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => detailPage(value)));
+    }).catchError((e) {
+      print("got error");
+      Navigator.pop(context);
+    });
+    return Scaffold(
+      backgroundColor: const Color(0xFF17203A),
+      body: Center(
+        child: LottieBuilder.network(
+            "https://lottie.host/c99996cb-fcd2-4d6c-b78a-279a2a86ba16/Unnr7r0nCn.json"),
+      ),
     );
   }
 }

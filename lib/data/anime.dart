@@ -72,6 +72,10 @@ class AnimeModel {
   final bool is_censored;
   @HiveField(18)
   final String episodeNumber;
+  @HiveField(19)
+  final int? nextAiringEpisode;
+  @HiveField(20)
+  final String? subOrDub;
 
   AnimeModel(
       this.aniId,
@@ -92,7 +96,9 @@ class AnimeModel {
       this.titles,
       this.slug,
       this.is_censored,
-      this.is_hentai);
+      this.is_hentai,
+      this.nextAiringEpisode,
+      this.subOrDub);
 
   static AnimeModel toTopAir(json) {
     List<EpisodeModel> temp = [];
@@ -109,40 +115,43 @@ class AnimeModel {
     // print(json["image"]);
 
     return AnimeModel(
-      "${json["id"]}",
-      json["malId"] ?? 0,
-      json["title"] != null ? json["title"]["romaji"].toString() : " ",
-      json["cover_url"] ??
-          json["image"] ??
-          (json["coverImage"] != null
-              ? (json["coverImage"]["extraLarge"] ?? json["bannerImage"])
-              : " "),
-      json["description"] != null
-          ? json["description"].replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ')
-          : "",
-      json["status"] ?? "Ongoing",
-      json["poster_url"] ??
-          json["cover"] ??
-          (json["bannerImage"] ??
-              (json["coverImage"] != null
-                  ? json["coverImage"]["extraLarge"]
-                  : "")),
-      json['releaseDate'] != null ? json["releaseDate"].toString() : "Recent",
-      json["color"] ??
-          (json["coverImage"] != null ? json["coverImage"]["color"] : ""),
-      json["tags"] != null
-          ? json["tags"].toString().replaceAll(RegExp(r'[\[\]]'), "")
-          : json["genres"].toString().replaceAll(RegExp(r'[\[\]]'), ""),
-      json["totalEpisodes"].toString(),
-      json["type"] ?? "",
-      temp.reversed.toList(),
-      json["episodeNumber"] != null ? json["episodeNumber"].toString() : "",
-      json["episodeTitle"] != null ? json["episodeTitle"].toString() : "",
-      json["titles"] != null ? json["titles"][0] : "",
-      json["slug"] ?? " ",
-      json["is_censored"] ?? false,
-      json["is_censored"] != null ? true : false,
-    );
+        "${json["id"]}",
+        json["malId"] ?? 0,
+        json["title"] != null ? json["title"]["romaji"].toString() : " ",
+        json["cover_url"] ??
+            json["image"] ??
+            (json["coverImage"] != null
+                ? (json["coverImage"]["extraLarge"] ?? json["bannerImage"])
+                : " "),
+        json["description"] != null
+            ? json["description"].replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ')
+            : "",
+        json["status"] ?? "Ongoing",
+        json["poster_url"] ??
+            json["cover"] ??
+            (json["bannerImage"] ??
+                (json["coverImage"] != null
+                    ? json["coverImage"]["extraLarge"]
+                    : "")),
+        json['releaseDate'] != null ? json["releaseDate"].toString() : "Recent",
+        json["color"] ??
+            (json["coverImage"] != null ? json["coverImage"]["color"] : ""),
+        json["tags"] != null
+            ? json["tags"].toString().replaceAll(RegExp(r'[\[\]]'), "")
+            : json["genres"].toString().replaceAll(RegExp(r'[\[\]]'), ""),
+        json["totalEpisodes"].toString(),
+        json["type"] ?? "",
+        temp.reversed.toList(),
+        json["episodeNumber"] != null ? json["episodeNumber"].toString() : "",
+        json["episodeTitle"] != null ? json["episodeTitle"].toString() : "",
+        json["titles"] != null ? json["titles"][0] : "",
+        json["slug"] ?? " ",
+        json["is_censored"] ?? false,
+        json["is_censored"] != null ? true : false,
+        json["nextAiringEpisode"] != null
+            ? json["nextAiringEpisode"]["airingTime"]
+            : 0,
+        json["subOrDub"] ?? "Sub");
   }
 
   static Map toJson(AnimeModel item) {

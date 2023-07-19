@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -10,37 +10,51 @@ import 'package:senpai/components/schedulePage.dart';
 import 'package:senpai/components/searchPage.dart';
 import 'package:senpai/components/trendingPage.dart';
 import 'package:senpai/settings.dart';
+import 'package:shake/shake.dart';
 import 'package:toast/toast.dart';
 
 class LayoutComp extends StatefulWidget {
-  const LayoutComp({super.key});
+  final List preFetch;
+  const LayoutComp({super.key, required this.preFetch});
 
   @override
   State<LayoutComp> createState() => LayoutCompState();
 }
 
 class LayoutCompState extends State<LayoutComp> {
-  FocusNode _focus = FocusNode();
-
   ScrollController scrollController = ScrollController();
+  final PageController _pageController = PageController(initialPage: 1);
 
   int index = 1;
-  // File file = File("'../../assets/images/profilePic.jpg'");
+  @override
+  void initState() {
+    super.initState();
+    ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
+      print("shaked");
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const RandomSplash()));
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     ToastContext().init(context);
 
     List<Widget> pages = [
-      trendingPage(scrollController: scrollController),
+      trendingPage(
+          scrollController: scrollController, topair: widget.preFetch[0]),
       Later(scrollController: scrollController),
       search(scrollController: scrollController),
-      RecentEpisodes(scrollController: scrollController),
-      Schedule(scrollController: scrollController),
+      RecentEpisodes(
+          scrollController: scrollController, data: widget.preFetch[1]),
+      Schedule(
+          scrollController: scrollController, schedule: widget.preFetch[2]),
     ];
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
         body: MediaQuery.of(context).size.width > 600
             ? ListView(
+                scrollDirection: Axis.horizontal,
                 controller: scrollController,
                 shrinkWrap: true,
                 children: [
@@ -134,41 +148,51 @@ class LayoutCompState extends State<LayoutComp> {
                 width: screen.width,
                 height: screen.height,
                 padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: pages[index]),
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (value) {
+                    index = value;
+                    setState(() {});
+                  },
+                  children: pages,
+                )),
         backgroundColor: const Color(0xFF17203A),
         bottomNavigationBar: MediaQuery.of(context).size.width <= 600
-            ? BottomNavigationBar(
-                mouseCursor: SystemMouseCursors.click,
-                type: BottomNavigationBarType.fixed,
-                selectedFontSize: 15,
-                selectedIconTheme:
-                    const IconThemeData(color: Colors.greenAccent),
-                selectedItemColor: Colors.greenAccent,
-                selectedLabelStyle:
-                    const TextStyle(fontWeight: FontWeight.bold),
+            ? BottomNavyBar(
+                curve: Curves.linear,
+                showElevation: true,
                 backgroundColor: const Color(0xFF17203A),
-                items: <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
-                      icon: Icon(MdiIcons.trendingUp), label: "Trends"),
-                  BottomNavigationBarItem(
-                      activeIcon: Icon(MdiIcons.bookmarkBox),
+                items: <BottomNavyBarItem>[
+                  BottomNavyBarItem(
+                      activeColor: Colors.blueAccent,
+                      icon: Icon(MdiIcons.trendingUp),
+                      title: const Text("Trends")),
+                  BottomNavyBarItem(
+                      activeColor: Colors.blueAccent,
                       icon: Icon(MdiIcons.bookmarkBoxOutline),
-                      label: "Later"),
-                  BottomNavigationBarItem(
-                      icon: Icon(MdiIcons.magnify), label: "Search"),
-                  BottomNavigationBarItem(
-                      icon: Icon(MdiIcons.divingScuba), label: "Latest"),
-                  BottomNavigationBarItem(
-                      icon: Icon(MdiIcons.calendarClockOutline), label: "Next"),
+                      title: const Text("Later")),
+                  BottomNavyBarItem(
+                      activeColor: Colors.blueAccent,
+                      icon: Icon(MdiIcons.magnify),
+                      title: const Text("Search")),
+                  BottomNavyBarItem(
+                      activeColor: Colors.blueAccent,
+                      icon: Icon(MdiIcons.divingScuba),
+                      title: const Text("Latest")),
+                  BottomNavyBarItem(
+                      activeColor: Colors.blueAccent,
+                      icon: Icon(MdiIcons.calendarClockOutline),
+                      title: const Text("Next")),
                 ],
-                currentIndex: index,
-                onTap: (value) {
-                  index = value;
-                  if (scrollController.hasClients) {
+                selectedIndex: index,
+                onItemSelected: (value) {
+                  if (scrollController.hasClients && index == value) {
                     scrollController.animateTo(0,
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.fastOutSlowIn);
                   }
+                  index = value;
+                  _pageController.jumpToPage(value);
 
                   setState(() {});
                 },
@@ -186,7 +210,7 @@ class LayoutCompState extends State<LayoutComp> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    _pageController.dispose();
     super.dispose();
   }
 }

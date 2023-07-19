@@ -9,6 +9,7 @@ class AniList {
   static String base_url = "https://toasty-kun.vercel.app/";
 
   static Future<List<AnimeModel>> fetchTopAir() async {
+    print("called for trending");
     final response = await Dio().get("$base_url/meta/anilist/trending");
     // var data = jsonDecode(response.data["results"]);
     List data = response.data["results"];
@@ -19,6 +20,8 @@ class AniList {
     for (var anime in data) {
       trending.add(AnimeModel.toTopAir(anime));
     }
+    print("at trending ${trending.length}");
+
     return trending;
   }
 
@@ -118,7 +121,7 @@ class AniList {
       } catch (e) {
         print(e);
       }
-      print(data.length);
+      print("at schedule ${data.length}");
 
       return data;
     }
@@ -158,7 +161,6 @@ class AniList {
   //   final response = await Dio().get("$base_url/meta/anilist/info/$name");
   //   return AnimeModel.toTopAir(response.data);
   // }
-
   // static Future<Map> fetchMappingsWithMal(malid, aniid) async {
   //   Map data;
   //   try {
@@ -172,7 +174,6 @@ class AniList {
   //     } else {
   //       data = jsonDecode(response.data)["Pages"];
   //     }
-
   //     if (response.statusCode != 404) {
   //       Map<String, String> mappings = {};
   //       data.forEach((key, value) {

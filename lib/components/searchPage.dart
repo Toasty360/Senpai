@@ -30,7 +30,7 @@ class _searchState extends State<search> {
   bool isDataNew = false;
   late String currentSearch = "";
   bool isAdvSearch = false;
-
+  late List backup;
   List genres = [
     {
       "value": false,
@@ -120,6 +120,12 @@ class _searchState extends State<search> {
     child: Text("Nothing to see here", style: TextStyle(color: Colors.white)),
   );
 
+  @override
+  void initState() {
+    super.initState();
+    backup = genres;
+  }
+
   fetchAdvSearch() async {
     await AniList.advancedSearch(queryString, page: page).then((res) {
       data.addAll(res);
@@ -177,199 +183,210 @@ class _searchState extends State<search> {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           width: _screen.width * 0.8,
-                          child: TextField(
-                            style: const TextStyle(color: Colors.white),
-                            controller: _controller,
-                            decoration: InputDecoration(
-                              suffix: InkWell(
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    backgroundColor: const Color(0xFF17203A),
-                                    isDismissible: true,
-                                    showDragHandle: true,
-                                    useSafeArea: true,
-                                    enableDrag: true,
-                                    isScrollControlled: true,
-                                    context: context,
-                                    builder: (ctx) {
-                                      return Container(
-                                        child: ListView(
-                                          children: [
-                                            Container(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 5,
-                                                        vertical: 10),
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10),
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                height: 50,
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    const Text(
-                                                      "Geners",
-                                                      style: TextStyle(
-                                                          fontSize: 25,
-                                                          fontWeight:
-                                                              FontWeight.bold),
-                                                    ),
-                                                    InkWell(
-                                                      onTap: () {
-                                                        isAdvSearch = true;
-                                                        page = 1;
-                                                        data = [];
-                                                        goterror = false;
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                width: _screen.width * 0.7,
+                                child: TextField(
+                                  style: const TextStyle(color: Colors.white),
+                                  controller: _controller,
+                                  decoration: const InputDecoration(
+                                    prefixIcon: const Icon(Icons.search),
+                                    border: UnderlineInputBorder(),
+                                    hintText: "Search",
+                                    fillColor: Colors.white,
+                                    hintStyle: TextStyle(color: Colors.white),
+                                  ),
+                                  onSubmitted: (String value) {
+                                    isAdvSearch = false;
+                                    data = [];
 
-                                                        setState(() {});
-                                                        Toast.show(
-                                                            "Fetching data!",
-                                                            duration: Toast
-                                                                .lengthShort);
-                                                        ctx.navigator.pop();
-                                                        fetchAdvSearch();
-                                                        //call data
-                                                      },
-                                                      child: Container(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                horizontal: 10,
-                                                                vertical: 5),
-                                                        decoration: BoxDecoration(
-                                                            color: Colors
-                                                                .blueAccent,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10)),
-                                                        child: const Text(
-                                                          "Fetch?",
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )),
-                                            StatefulBuilder(
-                                              builder: (context, setState) {
-                                                return ListView.builder(
-                                                  shrinkWrap: true,
-                                                  physics:
-                                                      const ClampingScrollPhysics(),
-                                                  itemCount: genres.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return CheckboxListTile(
-                                                      value: genres[index]
-                                                          ["value"],
-                                                      title: Text(genres[index]
-                                                          ["type"]),
-                                                      onChanged: (value) {
-                                                        if (value!) {
-                                                          genres[index]
-                                                              ["value"] = true;
-                                                          queryString.add(
-                                                              genres[index]
-                                                                  ["type"]);
-                                                        } else {
-                                                          genres[index]
-                                                              ["value"] = false;
-                                                          queryString.remove(
-                                                              genres[index]
-                                                                  ["type"]);
-                                                        }
-                                                        setState(() {});
-                                                      },
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Icon(MdiIcons.tune),
+                                    if (_controller.text != "") {
+                                      if (currentSearch == _controller.text) {
+                                      } else {
+                                        print("Searching ig");
+                                        data = [];
+                                        page = 1;
+                                        currentSearch = _controller.text;
+                                        loader = const Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              CircularProgressIndicator(),
+                                              SizedBox(
+                                                height: 20,
+                                              ),
+                                              Text(
+                                                "Please wait fetching the anime!",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ]);
+                                        setState(() {});
+                                        getAnime(currentSearch);
+                                        if (settings.enableHentai) {
+                                          Future.delayed(
+                                              const Duration(milliseconds: 5),
+                                              () {
+                                            HentaiHome(searchfor: currentSearch)
+                                                .then((value) {
+                                              setState(() {
+                                                data.addAll(value);
+                                              });
+                                            });
+                                          });
+                                        }
+                                      }
+                                    } else {
+                                      page = 1;
+                                      data = [];
+                                      goterror = true;
+                                      setState(() {});
+                                    }
+                                    if (currentSearch == _controller.text) {
+                                      FocusScopeNode currentFocus =
+                                          FocusScope.of(context);
+
+                                      if (!currentFocus.hasPrimaryFocus) {
+                                        currentFocus.unfocus();
+                                      }
+                                    }
+                                    setState(() {});
+                                  },
+                                ),
                               ),
-                              prefixIcon: Icon(Icons.search),
-                              border: UnderlineInputBorder(),
-                              hintText: "Search",
-                              fillColor: Colors.white,
-                              hintStyle: TextStyle(color: Colors.white),
-                            ),
-                            onSubmitted: (String value) {
-                              isAdvSearch = false;
-                              data = [];
-
-                              if (_controller.text != "") {
-                                if (currentSearch == _controller.text) {
-                                } else {
-                                  print("Searching ig");
-                                  data = [];
-                                  page = 1;
-                                  currentSearch = _controller.text;
-                                  loader = const Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        CircularProgressIndicator(),
-                                        SizedBox(
-                                          height: 20,
-                                        ),
-                                        Text(
-                                          "Please wait fetching the anime!",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ]);
-                                  setState(() {});
-                                  getAnime(currentSearch);
-                                  if (settings.enableHentai) {
-                                    Future.delayed(
-                                        const Duration(milliseconds: 5), () {
-                                      HentaiHome(searchfor: currentSearch)
-                                          .then((value) {
-                                        setState(() {
-                                          data.addAll(value);
-                                        });
-                                      });
-                                    });
-                                  }
-                                }
-                              } else {
-                                page = 1;
-                                data = [];
-                                goterror = true;
-                                setState(() {});
-                              }
-                              if (currentSearch == _controller.text) {
-                                FocusScopeNode currentFocus =
-                                    FocusScope.of(context);
-
-                                if (!currentFocus.hasPrimaryFocus) {
-                                  currentFocus.unfocus();
-                                }
-                              }
-                              setState(() {});
-                            },
+                              Container(
+                                child: InkWell(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      backgroundColor: const Color(0xFF17203A),
+                                      isDismissible: true,
+                                      showDragHandle: true,
+                                      useSafeArea: true,
+                                      enableDrag: true,
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (ctx) {
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5, vertical: 10),
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          height: 320,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              SizedBox(
+                                                  height: 50,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      const Text(
+                                                        "Geners",
+                                                        style: TextStyle(
+                                                            fontSize: 25,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      TextButton(
+                                                          onPressed: () {
+                                                            isAdvSearch = true;
+                                                            page = 1;
+                                                            data = [];
+                                                            goterror = false;
+                                                            setState(() {});
+                                                            Toast.show(
+                                                                "Fetching data!",
+                                                                duration: Toast
+                                                                    .lengthShort);
+                                                            ctx.navigator.pop();
+                                                            fetchAdvSearch();
+                                                          },
+                                                          child: const Text(
+                                                              "Fetch?"))
+                                                    ],
+                                                  )),
+                                              StatefulBuilder(
+                                                builder: (ctx, stateit) {
+                                                  return Wrap(
+                                                    spacing: 10,
+                                                    runSpacing: 10,
+                                                    children: genres
+                                                        .map((e) => InkWell(
+                                                              onTap: () {
+                                                                if (e[
+                                                                    "value"]) {
+                                                                  queryString
+                                                                      .remove(e[
+                                                                          "type"]);
+                                                                } else {
+                                                                  queryString.add(
+                                                                      e["type"]);
+                                                                }
+                                                                e["value"] =
+                                                                    !e["value"];
+                                                                stateit(() {});
+                                                                setState(() {});
+                                                              },
+                                                              child: Container(
+                                                                  padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                      horizontal:
+                                                                          10,
+                                                                      vertical:
+                                                                          5),
+                                                                  decoration: BoxDecoration(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              8),
+                                                                      color: e["value"]
+                                                                          ? Colors
+                                                                              .blueAccent
+                                                                          : null,
+                                                                      border: e["value"]
+                                                                          ? null
+                                                                          : Border.all(
+                                                                              width:
+                                                                                  1,
+                                                                              color: Colors
+                                                                                  .white)),
+                                                                  child: Text(
+                                                                      e["type"])),
+                                                            ))
+                                                        .cast<Widget>()
+                                                        .toList(),
+                                                  );
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Icon(MdiIcons.tune),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ],
                     ))
-                : Center(),
+                : const Center(),
             Container(
               height: 10,
               color: Colors.transparent,
             ),
             data.isEmpty
-                ? Container(
+                ? SizedBox(
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: goterror
                         ? const Center(
@@ -392,6 +409,8 @@ class _searchState extends State<search> {
   @override
   void dispose() {
     // TODO: implement dispose
+    _controller.dispose();
+    print("ctrnl disposed ig");
     super.dispose();
   }
 }

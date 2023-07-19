@@ -85,13 +85,15 @@ class AnimeModelAdapter extends TypeAdapter<AnimeModel> {
       fields[16] as String,
       fields[17] as bool,
       fields[12] as bool,
+      fields[19] as int?,
+      fields[20] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AnimeModel obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.aniId)
       ..writeByte(1)
@@ -129,7 +131,11 @@ class AnimeModelAdapter extends TypeAdapter<AnimeModel> {
       ..writeByte(17)
       ..write(obj.is_censored)
       ..writeByte(18)
-      ..write(obj.episodeNumber);
+      ..write(obj.episodeNumber)
+      ..writeByte(19)
+      ..write(obj.nextAiringEpisode)
+      ..writeByte(20)
+      ..write(obj.subOrDub);
   }
 
   @override

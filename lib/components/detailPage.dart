@@ -7,13 +7,13 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:lottie/lottie.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:senpai/components/MediaPlayer.dart';
 import 'package:senpai/data/anime.dart';
 import 'package:senpai/services/anilistFetcher.dart';
 import 'package:senpai/services/gogoFetcher.dart';
 import 'package:senpai/services/hanimeFetcher.dart';
 import 'package:senpai/services/zoroFetcher.dart';
-import 'package:senpai/settings.dart';
 import 'package:toast/toast.dart';
 
 class detailPage extends StatefulWidget {
@@ -102,6 +102,8 @@ class _detailPageState extends State<detailPage>
       }
       // print(anime.episodes);
     }
+    Toast.show("Refreshed");
+
     if (isSaved) {
       _saveItem();
     }
@@ -200,7 +202,7 @@ class _detailPageState extends State<detailPage>
       fetchData();
     }
     // _filteredEpisodes = anime.episodes;
-
+    isLoaded = true;
     print("isSaved $isSaved");
     filterEpisodes();
     filterout();
@@ -211,7 +213,7 @@ class _detailPageState extends State<detailPage>
     watchedIndexMonitor = watchedIndex.length;
   }
 
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   late final AnimationController _animationController;
 
   bool showmore = false;
@@ -223,7 +225,7 @@ class _detailPageState extends State<detailPage>
     hasData();
     getWatchedIndexs();
     _animationController = AnimationController(
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 1),
       vsync: this,
     );
     setState(() {
@@ -279,19 +281,20 @@ class _detailPageState extends State<detailPage>
     });
   }
 
-  List<Widget> animeDetailsWidget(Size screen) {
+  List<Widget> detailsPart(Size screen) {
     return [
-      Container(
-          padding: const EdgeInsets.all(10),
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
+      SizedBox(
+        height: 300,
+        child: Stack(
+          children: [
+            Container(
+              width: screen.width,
+              height: 200,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                image:
+                    NetworkImage(anime.cover != "" ? anime.cover : anime.image),
                 fit: BoxFit.cover,
-                opacity: 0.3,
-                colorFilter: const ColorFilter.srgbToLinearGamma(),
-                scale: 1.5,
-                image: NetworkImage(anime.cover, scale: 1.5),
                 onError: (exception, stackTrace) {
                   Container(
                       color: Colors.amber,
@@ -302,186 +305,423 @@ class _detailPageState extends State<detailPage>
                       ));
                 },
               )),
-          child: ListView(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            children: [
-              Container(
-                padding: const EdgeInsets.all(5),
-                child: Text(
-                  anime.title,
-                  style: TextStyle(
-                      color: Colors.amber.shade600,
-                      fontWeight: FontWeight.bold,
-                      // fontFamily: "Takota",
-                      fontSize: 18,
-                      letterSpacing: 1,
-                      overflow: TextOverflow.clip),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Row(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                backgroundColor: const Color(0xFF17203A),
-                                body: Center(
-                                  child: GestureDetector(
-                                    onVerticalDragEnd: (details) =>
-                                        context.navigator.pop(),
-                                    child: Container(
-                                      alignment: Alignment.bottomCenter,
-                                      height: screen.height * 0.6,
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      decoration: BoxDecoration(
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black45,
-                                                offset: Offset(0, 2),
-                                                blurRadius: 6)
-                                          ],
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image:
-                                                  NetworkImage(anime.image))),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ));
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Image.network(
-                          anime.image,
-                          width: screen.width *
-                              (screen.width > 600
-                                  ? screen.width > 900
-                                      ? 0.15
-                                      : 0.25
-                                  : 0.35),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 140,
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                              width: double.infinity,
-                              child: Row(
-                                children: [
-                                  const Text("Status: "),
-                                  Text(
-                                    anime.status.toLowerCase().contains("not")
-                                        ? "Not yet aired"
-                                        : anime.status,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        color: status
-                                            ? Colors.greenAccent
-                                            : Colors.amberAccent),
-                                  ),
-                                ],
-                              )),
-                          const Divider(),
-                          const SizedBox(
-                              child: Text(
-                            "Genres",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )),
-                          SizedBox(
-                              // width: screen.width * 0.3,
-                              height: 100,
-                              child: Text(
-                                anime.geners,
-                                style: const TextStyle(color: Colors.white),
-                                overflow: TextOverflow.fade,
-                                maxLines: 4,
-                              )),
-                          const Divider(),
-                          SizedBox(
-                              width: double.infinity,
-                              child: Row(
-                                children: [
-                                  const Text("Total Eps : "),
-                                  Text(anime.totalEpisodes,
-                                      style: TextStyle(
-                                          color: Colors.amber.shade400)),
-                                ],
-                              )),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
-          )),
-      const Divider(),
-      //synopsis
-      Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 10),
-              padding: const EdgeInsets.all(10),
-              height: showmore ? null : 200,
-              child: Text(
-                anime.desc,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w200,
-                ),
-                softWrap: true,
-                textAlign: TextAlign.justify,
-                maxLines: 50,
-                overflow: TextOverflow.ellipsis,
-              ),
             ),
-            InkWell(
-              onTap: () {
-                showmore = !showmore;
-                setState(() {});
-              },
-              radius: 0,
-              child: Container(
-                padding: const EdgeInsets.only(right: 10),
-                alignment: Alignment.centerRight,
-                child: Text(
-                  showmore ? "Show less" : "Show more",
-                  style: const TextStyle(color: Colors.blueAccent),
-                ),
+            Container(
+              height: 210,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.fromRGBO(23, 32, 58, 0),
+                      Color.fromRGBO(23, 32, 58, 0.7),
+                      Color.fromRGBO(23, 32, 58, 1),
+                    ]),
               ),
-            )
+              width: screen.width,
+            ),
+            // Positioned(
+            //     right: 10,
+            //     top: 60,
+            //     child: isLoaded
+            //         ? InkWell(
+            //             child: Container(
+            //             padding: const EdgeInsets.symmetric(
+            //                 horizontal: 10, vertical: 5),
+            //             decoration: BoxDecoration(
+            //                 color: const Color.fromARGB(168, 104, 58, 183),
+            //                 borderRadius: BorderRadius.circular(8)),
+            //             child: Text(isSaved ? "Saved" : "WatchLater"),
+            //           ))
+            //         : const Center()),
+            Positioned(
+                bottom: 0,
+                left: 20,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    anime.image,
+                    width: 150,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.greenAccent,
+                        alignment: Alignment.center,
+                        child: const Text(
+                          'Whoops!',
+                          style: TextStyle(fontSize: 20),
+                        )),
+                  ),
+                )),
+            Positioned(
+                bottom: 100,
+                right: 0,
+                child: SizedBox(
+                  width: screen.width * 0.48,
+                  child: Text(
+                    anime.title,
+                    maxLines: 3,
+                    style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent),
+                  ),
+                )),
+            Positioned(
+                bottom: 20,
+                right: 20,
+                child: SizedBox(
+                  width: 150,
+                  child: Wrap(
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.deepPurple),
+                          child: Text(
+                              "Ep ${anime.episodes.length}/${anime.totalEpisodes}")),
+                      Text(anime.type),
+                      Text(
+                        anime.subOrDub!.toUpperCase(),
+                      ),
+                      isLoaded
+                          ? InkWell(
+                              radius: 0,
+                              onTap: () async {
+                                if (isSaved) {
+                                  isSaved = await _removeItem();
+                                  _animationController.reverse();
+                                } else {
+                                  isSaved = await _saveItem();
+                                  _animationController.forward();
+                                }
+                                setState(() {});
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                width: 85,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 5, vertical: 0),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                        width: 1, color: Colors.white)),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(isSaved ? "Saved" : "Later"),
+                                    Lottie.network(
+                                        "https://assets8.lottiefiles.com/packages/lf20_nF4sSU5agv.json",
+                                        controller: _animationController,
+                                        height: 30),
+                                  ],
+                                ),
+                              ))
+                          : const Center()
+                    ],
+                  ),
+                )),
+            isLoaded
+                ? Positioned(
+                    bottom: 10,
+                    right: screen.width * 0.25,
+                    child: Center(),
+                  )
+                : const Center()
           ],
         ),
       ),
-      const Divider(),
+      Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: anime.geners
+              .split(",")
+              .map((e) => Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(width: 1, color: Colors.white)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Text(e),
+                  ))
+              .cast<Widget>()
+              .toList(),
+        ),
+      ),
+      isLoaded && anime.nextAiringEpisode != 0
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                children: [
+                  const Text("Next Episode at:  "),
+                  Text(
+                    "${DateTime.fromMillisecondsSinceEpoch(anime.nextAiringEpisode! * 1000).toLocal()}",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                  )
+                ],
+              ))
+          : const Center(),
+      anime.desc != ""
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              width: screen.width,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                children: [
+                  const Text(
+                    "Description",
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.greenAccent),
+                  ),
+                  SizedBox(
+                    height: showmore || anime.desc.length < 30 ? null : 100,
+                    child: Text(
+                      anime.desc,
+                      textAlign: TextAlign.justify,
+                    ),
+                  ),
+                  !showmore
+                      ? Container(
+                          width: screen.width,
+                          child: InkWell(
+                              onTap: () {
+                                showmore = !showmore;
+                                setState(() {});
+                              },
+                              child: Container(
+                                alignment: Alignment.centerRight,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: const Text(
+                                  "More",
+                                  style: TextStyle(color: Colors.deepPurple),
+                                ),
+                              )),
+                        )
+                      : const Center()
+                ],
+              ),
+            )
+          : const Center(),
     ];
   }
+
+  // List<Widget> animeDetailsWidget(Size screen) {
+  //   return [
+  //     Container(
+  //         padding: const EdgeInsets.all(10),
+  //         margin: const EdgeInsets.symmetric(vertical: 10),
+  //         decoration: BoxDecoration(
+  //             borderRadius: BorderRadius.circular(10),
+  //             image: DecorationImage(
+  //               fit: BoxFit.cover,
+  //               opacity: 0.3,
+  //               colorFilter: const ColorFilter.srgbToLinearGamma(),
+  //               scale: 1.5,
+  //               image: NetworkImage(anime.cover, scale: 1.5),
+  //               onError: (exception, stackTrace) {
+  //                 Container(
+  //                     color: Colors.amber,
+  //                     alignment: Alignment.center,
+  //                     child: const Text(
+  //                       'Whoops!',
+  //                       style: TextStyle(fontSize: 20),
+  //                     ));
+  //               },
+  //             )),
+  //         child: ListView(
+  //           shrinkWrap: true,
+  //           physics: const ClampingScrollPhysics(),
+  //           children: [
+  //             Container(
+  //               padding: const EdgeInsets.all(5),
+  //               child: Text(
+  //                 anime.title,
+  //                 style: TextStyle(
+  //                     color: Colors.amber.shade600,
+  //                     fontWeight: FontWeight.bold,
+  //                     // fontFamily: "Takota",
+  //                     fontSize: 18,
+  //                     letterSpacing: 1,
+  //                     overflow: TextOverflow.clip),
+  //                 textAlign: TextAlign.center,
+  //               ),
+  //             ),
+  //             Container(
+  //               padding: const EdgeInsets.only(bottom: 5),
+  //               child: Row(
+  //                 children: [
+  //                   InkWell(
+  //                     onTap: () {
+  //                       Navigator.push(
+  //                           context,
+  //                           MaterialPageRoute(
+  //                             builder: (context) => Scaffold(
+  //                               backgroundColor: const Color(0xFF17203A),
+  //                               body: Center(
+  //                                 child: GestureDetector(
+  //                                   onVerticalDragEnd: (details) =>
+  //                                       context.navigator.pop(),
+  //                                   child: Container(
+  //                                     alignment: Alignment.bottomCenter,
+  //                                     height: screen.height * 0.6,
+  //                                     margin: const EdgeInsets.symmetric(
+  //                                         horizontal: 20),
+  //                                     decoration: BoxDecoration(
+  //                                         boxShadow: const [
+  //                                           BoxShadow(
+  //                                               color: Colors.black45,
+  //                                               offset: Offset(0, 2),
+  //                                               blurRadius: 6)
+  //                                         ],
+  //                                         borderRadius:
+  //                                             BorderRadius.circular(12),
+  //                                         image: DecorationImage(
+  //                                             fit: BoxFit.cover,
+  //                                             image:
+  //                                                 NetworkImage(anime.image))),
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                           ));
+  //                     },
+  //                     child: ClipRRect(
+  //                       borderRadius: BorderRadius.circular(10.0),
+  //                       child: Image.network(
+  //                         anime.image,
+  //                         width: screen.width *
+  //                             (screen.width > 600
+  //                                 ? screen.width > 900
+  //                                     ? 0.15
+  //                                     : 0.25
+  //                                 : 0.35),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   Container(
+  //                     width: 140,
+  //                     margin: const EdgeInsets.only(left: 10),
+  //                     child: Column(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //                       children: [
+  //                         SizedBox(
+  //                             width: double.infinity,
+  //                             child: Row(
+  //                               children: [
+  //                                 const Text("Status: "),
+  //                                 Text(
+  //                                   anime.status.toLowerCase().contains("not")
+  //                                       ? "Not yet aired"
+  //                                       : anime.status,
+  //                                   style: TextStyle(
+  //                                       fontSize: 13,
+  //                                       color: status
+  //                                           ? Colors.greenAccent
+  //                                           : Colors.amberAccent),
+  //                                 ),
+  //                               ],
+  //                             )),
+  //                         const Divider(),
+  //                         const SizedBox(
+  //                             child: Text(
+  //                           "Genres",
+  //                           textAlign: TextAlign.left,
+  //                           style: TextStyle(
+  //                             color: Colors.blueAccent,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                         )),
+  //                         SizedBox(
+  //                             // width: screen.width * 0.3,
+  //                             height: 100,
+  //                             child: Text(
+  //                               anime.geners,
+  //                               style: const TextStyle(color: Colors.white),
+  //                               overflow: TextOverflow.fade,
+  //                               maxLines: 4,
+  //                             )),
+  //                         const Divider(),
+  //                         SizedBox(
+  //                             width: double.infinity,
+  //                             child: Row(
+  //                               children: [
+  //                                 const Text("Total Eps : "),
+  //                                 Text(anime.totalEpisodes,
+  //                                     style: TextStyle(
+  //                                         color: Colors.amber.shade400)),
+  //                               ],
+  //                             )),
+  //                       ],
+  //                     ),
+  //                   )
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         )),
+  //     const Divider(),
+  //     //synopsis
+  //     Container(
+  //       margin: const EdgeInsets.only(bottom: 10),
+  //       child: Column(
+  //         children: [
+  //           Container(
+  //             margin: const EdgeInsets.only(top: 10),
+  //             padding: const EdgeInsets.all(10),
+  //             height: showmore ? null : 200,
+  //             child: Text(
+  //               anime.desc,
+  //               style: const TextStyle(
+  //                 color: Colors.white,
+  //                 fontWeight: FontWeight.w200,
+  //               ),
+  //               softWrap: true,
+  //               textAlign: TextAlign.justify,
+  //               maxLines: 50,
+  //               overflow: TextOverflow.ellipsis,
+  //             ),
+  //           ),
+  //           InkWell(
+  //             onTap: () {
+  //               showmore = !showmore;
+  //               setState(() {});
+  //             },
+  //             radius: 0,
+  //             child: Container(
+  //               padding: const EdgeInsets.only(right: 10),
+  //               alignment: Alignment.centerRight,
+  //               child: Text(
+  //                 showmore ? "Show less" : "Show more",
+  //                 style: const TextStyle(color: Colors.blueAccent),
+  //               ),
+  //             ),
+  //           )
+  //         ],
+  //       ),
+  //     ),
+  //     const Divider(),
+  //   ];
+  // }
 
   List<Widget> episodesWidget(Size screen) {
     return anime.episodes.isNotEmpty || hentaiData.isNotEmpty
         ? [
             Container(
                 width: screen.width * 0.7,
+                margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
                 decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 57, 96, 211),
                     borderRadius: BorderRadius.circular(10)),
@@ -502,6 +742,7 @@ class _detailPageState extends State<detailPage>
                       prefixIcon: Icon(Icons.search_rounded)),
                 )),
             Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -511,7 +752,7 @@ class _detailPageState extends State<detailPage>
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     child: const Text(
-                      "Episodes:",
+                      "Episodes :",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Colors.greenAccent,
@@ -550,10 +791,12 @@ class _detailPageState extends State<detailPage>
             ),
             episodesbars.isNotEmpty && perPage != -1
                 ? Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    height: 50,
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    height: 40,
                     child: ListView.builder(
+                      padding: EdgeInsets.zero,
                       scrollDirection: Axis.horizontal,
                       itemCount: episodesbars.length,
                       itemBuilder: (context, index) {
@@ -583,8 +826,9 @@ class _detailPageState extends State<detailPage>
                   )
                 : const Center(),
             Container(
-              margin: const EdgeInsets.symmetric(vertical: 10),
+              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               child: GridView.builder(
+                padding: EdgeInsets.zero,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: screen.width >= 600 ? 3 : 1,
                     childAspectRatio: 16 / 9,
@@ -717,129 +961,98 @@ class _detailPageState extends State<detailPage>
                         // readyPlayer(currentIndex, index);
                       }
                     },
-                    child: Container(
-                        height: 150,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 10),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [
-                              BoxShadow(
-                                  color: Colors.black26,
-                                  offset: Offset(1, 2),
-                                  blurRadius: 10)
-                            ],
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              opacity: watchedIndex.contains(index) ? 0.2 : 1,
-                              colorFilter:
-                                  const ColorFilter.srgbToLinearGamma(),
-                              scale: 1.5,
-                              image: NetworkImage(
-                                  (anime.is_hentai ||
-                                          anime.geners
-                                              .toLowerCase()
-                                              .contains("hentai"))
-                                      ? hentaiData[index]["poster"]
-                                      : _filteredEpisodes[index].image,
-                                  scale: 1.5),
-                              onError: (exception, stackTrace) {
-                                Container(
-                                    color: Colors.amber,
-                                    alignment: Alignment.center,
-                                    child: const Text(
-                                      'Whoops!',
-                                      style: TextStyle(fontSize: 20),
-                                    ));
-                              },
-                            )),
-                        child: Container(
+                    child: Stack(
+                      children: [
+                        Container(
                           margin: const EdgeInsets.symmetric(
-                              vertical: 20, horizontal: 10),
-                          // alignment: Alignment.bottomCenter,
+                              horizontal: 10, vertical: 10),
+                          height: 200,
                           decoration: BoxDecoration(
-                              backgroundBlendMode: watchedIndex.contains(index)
-                                  ? BlendMode.dstOver
-                                  : BlendMode.darken,
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.black54),
-                          child: Stack(
-                            children: [
-                              isdownloaded ||
-                                      currentDownloadings.keys.contains(_t)
-                                  ? Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: Container(
-                                        width: 50,
-                                        height: 50,
-                                        decoration: const BoxDecoration(
-                                            color: Color.fromARGB(
-                                                134, 62, 88, 215),
-                                            borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(10),
-                                                bottomLeft:
-                                                    Radius.circular(50))),
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 10, horizontal: 15),
-                                      ),
-                                    )
-                                  : const Center(),
-                              isdownloaded
-                                  ? const Positioned(
-                                      top: 6,
-                                      right: 10,
-                                      child: Icon(Icons.download_done))
-                                  : currentDownloadings.keys.contains(_t)
-                                      ? const Positioned(
-                                          top: 6,
-                                          right: 10,
-                                          child:
-                                              Icon(Icons.downloading_outlined))
-                                      : const Center(),
-                              Positioned(
-                                bottom: 0,
-                                child: SizedBox(
-                                  height: 100,
-                                  width: 300,
-                                  child: ListTile(
-                                    mouseCursor: SystemMouseCursors.click,
-                                    title: Text(
-                                      (anime.is_hentai ||
-                                              anime.geners
-                                                  .toLowerCase()
-                                                  .contains("hentai"))
-                                          ? hentaiData[index]["name"]
-                                          : _filteredEpisodes[index].title,
+                              borderRadius: BorderRadius.circular(8),
+                              image: DecorationImage(
+                                  image: NetworkImage(
+                                      _filteredEpisodes[index].image),
+                                  fit: BoxFit.cover)),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 10),
+                            height: 201,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                gradient: const LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Color.fromRGBO(31, 27, 36, 0),
+                                      Color.fromRGBO(31, 27, 36, 1),
+                                    ])),
+                            child: Container(
+                                alignment: Alignment.center,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 20),
+                                decoration: const BoxDecoration(
+                                    color: Color.fromRGBO(31, 27, 36, 0.3)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _filteredEpisodes[index].title,
+                                      maxLines: 1,
+                                      textAlign: TextAlign.center,
                                       style: const TextStyle(
-                                          color: Colors.green,
-                                          overflow: TextOverflow.ellipsis),
-                                      textAlign: TextAlign.center,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18),
                                     ),
-                                    subtitle: Text(
-                                      (anime.is_hentai ||
-                                              anime.geners
-                                                  .toLowerCase()
-                                                  .contains("hentai"))
-                                          ? hentaiData[index]["id"].toString()
-                                          : _filteredEpisodes[index]
-                                              .number
-                                              .toString(),
-                                      style: TextStyle(
-                                          color: (anime.is_hentai ||
-                                                  anime.geners
-                                                      .toLowerCase()
-                                                      .contains("hentai"))
-                                              ? Colors.greenAccent
-                                              : Colors.green),
-                                      textAlign: TextAlign.center,
+                                    const SizedBox(
+                                      height: 5,
                                     ),
-                                  ),
-                                ),
+                                    Text(
+                                      _filteredEpisodes[index].description,
+                                      maxLines: 2,
+                                      textAlign: TextAlign.center,
+                                      overflow: TextOverflow.ellipsis,
+                                    )
+                                  ],
+                                ))),
+                        Positioned(
+                            left: 10,
+                            top: 10,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(8),
+                                      bottomRight: Radius.circular(8)),
+                                  color: Color.fromARGB(141, 68, 137, 255)),
+                              child: Text(
+                                _filteredEpisodes[index].number.toString(),
+                                style:
+                                    const TextStyle(color: Colors.greenAccent),
                               ),
-                            ],
-                          ),
-                        )),
+                            )),
+                        isdownloaded
+                            ? Positioned(
+                                right: 10,
+                                top: 10,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 10),
+                                  decoration: const BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          topRight: Radius.circular(8),
+                                          bottomLeft: Radius.circular(8)),
+                                      color: Color.fromARGB(141, 68, 137, 255)),
+                                  child: const Icon(
+                                    Icons.download_done,
+                                    size: 20,
+                                  ),
+                                ))
+                            : const Center()
+                      ],
+                    ),
                   );
                 },
               ),
@@ -932,87 +1145,92 @@ class _detailPageState extends State<detailPage>
     return Scaffold(
         extendBodyBehindAppBar: true,
         resizeToAvoidBottomInset: false,
-        backgroundColor: const Color(0xFF17203A),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF17203A),
-          title: InkWell(
-            radius: 0,
-            onTap: () {
-              if (scrollController.hasClients) {
-                scrollController.animateTo(0,
-                    duration:
-                        const Duration(milliseconds: 500), //duration of scroll
-                    curve: Curves.fastOutSlowIn);
-              }
-            },
-            child: Text(
-              anime.title,
-            ),
-          ),
-          actions: [
-            screen.width >= 600
-                ? Container(
-                    height: 50,
-                    width: 220,
-                    alignment: Alignment.center,
-                    child: ListTile(
-                        title: const Text(
-                          "Default Quality",
-                          style: TextStyle(fontSize: 15),
-                        ),
-                        trailing: TextButton(
-                          onPressed: () {
-                            settings.qualityChoice == "default"
-                                ? settings.qualityChoice = "360p"
-                                : settings.qualityChoice = "default";
-                            print(settings.qualityChoice);
-                            setState(() {});
-                          },
-                          child: Text(
-                            settings.qualityChoice == "default"
-                                ? "High"
-                                : "Low",
-                            style: const TextStyle(color: Colors.blue),
-                          ),
-                        )))
-                : const Center(),
-            InkWell(
-              radius: 0,
-              onTap: () async {
-                if (isSaved) {
-                  isSaved = await _removeItem();
-                  _animationController.reverse();
-                } else {
-                  isSaved = await _saveItem();
-                  _animationController.forward();
-                }
-                setState(() {});
-              },
-              child: Lottie.network(
-                  "https://assets8.lottiefiles.com/packages/lf20_nF4sSU5agv.json",
-                  controller: _animationController),
-            ),
-            // IconButton(
-            //   onPressed: () async {
-            //     if (isSaved) {
-            //       isSaved = await _removeItem();
-            //     } else {
-            //       isSaved = await _saveItem();
-            //     }
-            //     setState(() {});
-            //   },
-            //   icon: Icon(MdiIcons.bookmark),
-            //   tooltip: isSaved ? "Remove?" : "Save for Later!",
-            //   color: isSaved ? Colors.greenAccent : Colors.white,
-            // )
-          ],
-        ),
+        backgroundColor: const Color.fromRGBO(23, 32, 58, 1),
+        // appBar: AppBar(
+        //   backgroundColor: Colors.transparent,
+        //   surfaceTintColor: Colors.transparent,
+        //   elevation: 0,
+        //   title: InkWell(
+        //     radius: 0,
+        //     onTap: () {
+        //       if (scrollController.hasClients) {
+        //         scrollController.animateTo(0,
+        //             duration:
+        //                 const Duration(milliseconds: 500), //duration of scroll
+        //             curve: Curves.fastOutSlowIn);
+        //       }
+        //     },
+        //     child: Text(
+        //       anime.title,
+        //     ),
+        //   ),
+        //   actions: [
+        //     screen.width >= 600
+        //         ? Container(
+        //             height: 50,
+        //             width: 220,
+        //             alignment: Alignment.center,
+        //             child: ListTile(
+        //                 title: const Text(
+        //                   "Default Quality",
+        //                   style: TextStyle(fontSize: 15),
+        //                 ),
+        //                 trailing: TextButton(
+        //                   onPressed: () {
+        //                     settings.qualityChoice == "default"
+        //                         ? settings.qualityChoice = "360p"
+        //                         : settings.qualityChoice = "default";
+        //                     print(settings.qualityChoice);
+        //                     setState(() {});
+        //                   },
+        //                   child: Text(
+        //                     settings.qualityChoice == "default"
+        //                         ? "High"
+        //                         : "Low",
+        //                     style: const TextStyle(color: Colors.blue),
+        //                   ),
+        //                 )))
+        //         : const Center(),
+        //     // InkWell(
+        //     //   radius: 0,
+        //     //   onTap: () async {
+        //     //     if (isSaved) {
+        //     //       isSaved = await _removeItem();
+        //     //       _animationController.reverse();
+        //     //     } else {
+        //     //       isSaved = await _saveItem();
+        //     //       _animationController.forward();
+        //     //     }
+        //     //     setState(() {});
+        //     //   },
+        //     //   child: Lottie.network(
+        //     //       "https://assets8.lottiefiles.com/packages/lf20_nF4sSU5agv.json",
+        //     //       controller: _animationController),
+        //     // ),
+        //     // IconButton(
+        //     //   onPressed: () async {
+        //     //     if (isSaved) {
+        //     //       isSaved = await _removeItem();
+        //     //     } else {
+        //     //       isSaved = await _saveItem();
+        //     //     }
+        //     //     setState(() {});
+        //     //   },
+        //     //   icon: Icon(MdiIcons.bookmark),
+        //     //   tooltip: isSaved ? "Remove?" : "Save for Later!",
+        //     //   color: isSaved ? Colors.greenAccent : Colors.white,
+        //     // )
+        //   ],
+        // ),
         body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: ListView(controller: scrollController, children: [
-            ...animeDetailsWidget(screen),
-            ...episodesWidget(screen)
-          ]),
+          child: ListView(
+              padding: EdgeInsets.zero,
+              controller: scrollController,
+              children: [
+                ...detailsPart(screen),
+                // ...animeDetailsWidget(screen),
+                ...episodesWidget(screen)
+              ]),
         ));
   }
 

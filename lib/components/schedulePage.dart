@@ -8,7 +8,9 @@ import 'package:senpai/services/anilistFetcher.dart';
 
 class Schedule extends StatefulWidget {
   final ScrollController scrollController;
-  const Schedule({super.key, required this.scrollController});
+  final Future<List<ScheduleModel>> schedule;
+  const Schedule(
+      {super.key, required this.scrollController, required this.schedule});
 
   @override
   State<Schedule> createState() => _ScheduleState();
@@ -40,13 +42,22 @@ class _ScheduleState extends State<Schedule> {
     // });
   }
 
+  preFetch() async {
+    await widget.schedule.then((value) {
+      if (value.isNotEmpty) {
+        data = value;
+        page++;
+      } else {
+        fetchSchedule();
+      }
+      setState(() {});
+    });
+  }
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    if (data.isEmpty) {
-      fetchSchedule();
-    }
+    if (data.isEmpty) preFetch();
   }
 
   @override

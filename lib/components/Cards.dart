@@ -22,6 +22,7 @@ class Cards extends StatefulWidget {
 class _CardsState extends State<Cards> {
   Widget MobileCards(ctx, index, screen) {
     return InkWell(
+      radius: 0,
       borderRadius: BorderRadius.circular(12),
       onTap: () {
         Navigator.push(
@@ -229,7 +230,9 @@ class _CardsState extends State<Cards> {
         child: screen.width <= 600
             ? widget.data.isNotEmpty
                 ? ListView.builder(
+                    padding: EdgeInsets.zero,
                     controller: widget.scrollController,
+                    addAutomaticKeepAlives: true,
                     shrinkWrap: true,
                     physics: const ClampingScrollPhysics(),
                     itemCount: widget.data.length,
@@ -237,43 +240,9 @@ class _CardsState extends State<Cards> {
                       return MobileCards(context, index, screen);
                     },
                   )
-                : FutureBuilder(
-                    future: _future,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return const Center(
-                          child: Text("No data!"),
-                        );
-                      }
-                      return Shimmer.fromColors(
-                          baseColor: const Color(0xFF17203A),
-                          highlightColor:
-                              const Color.fromARGB(255, 58, 72, 115),
-                          enabled: true,
-                          child: SingleChildScrollView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: 3,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                      margin: const EdgeInsets.all(5),
-                                      padding: const EdgeInsets.all(8),
-                                      height: 200,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                          shape: BoxShape.rectangle,
-                                          color: const Color(0xFF17203A),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                                color: Colors.black26,
-                                                offset: Offset(0, 2),
-                                                blurRadius: 6)
-                                          ]));
-                                },
-                              )));
-                    })
+                : const Center(
+                    child: Text("No data!"),
+                  )
             : widget.data.isNotEmpty
                 ? Container(
                     margin: const EdgeInsets.symmetric(
@@ -291,39 +260,8 @@ class _CardsState extends State<Cards> {
                       },
                     ),
                   )
-                : Shimmer.fromColors(
-                    baseColor: const Color(0xFF17203A),
-                    highlightColor: const Color.fromARGB(255, 58, 72, 115),
-                    enabled: true,
-                    child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 10),
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: max(widthCount, minCount),
-                                    mainAxisExtent: 350,
-                                    crossAxisSpacing: 10.0,
-                                    mainAxisSpacing: 10.0),
-                            itemCount: 5,
-                            itemBuilder: (context, index) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12.0),
-                                    shape: BoxShape.rectangle,
-                                    color: const Color(0xFF17203A),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                          color: Colors.black26,
-                                          offset: Offset(0, 2),
-                                          blurRadius: 6)
-                                    ]),
-                              );
-                            },
-                          ),
-                        ))));
+                : const Center(
+                    child: Text("No data!"),
+                  ));
   }
 }
