@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -29,11 +30,13 @@ class LayoutCompState extends State<LayoutComp> {
   @override
   void initState() {
     super.initState();
-    ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
-      print("shaked");
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => const RandomSplash()));
-    });
+    if (!kIsWeb) {
+      ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
+        print("shaked");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const RandomSplash()));
+      });
+    }
   }
 
   @override
@@ -53,45 +56,39 @@ class LayoutCompState extends State<LayoutComp> {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
         body: MediaQuery.of(context).size.width > 600
-            ? ListView(
-                scrollDirection: Axis.horizontal,
-                controller: scrollController,
-                shrinkWrap: true,
+            ? Row(
                 children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height),
-                    child: IntrinsicHeight(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10),
-                        child: NavigationRail(
-                            selectedLabelTextStyle:
-                                const TextStyle(color: Colors.greenAccent),
-                            backgroundColor: const Color(0xFF17203A),
-                            elevation: 20,
-                            selectedIconTheme:
-                                const IconThemeData(color: Colors.greenAccent),
-                            leading: InkWell(
-                                borderRadius: BorderRadius.circular(10),
-                                onDoubleTap: () {
-                                  settings.toggleHentai();
-                                  setState(() {});
-                                  Toast.show(
-                                      settings.enableHentai
-                                          ? "Pheww Hentai enabled"
-                                          : "Dang! Hentai disabled",
-                                      duration: Toast.lengthShort);
-                                },
-                                child: CircleAvatar(
-                                  backgroundImage: AssetImage(
-                                    settings.enableHentai
-                                        ? "assets/images/female.jpg"
-                                        : "assets/images/profilePic.jpg",
-                                  ),
-                                  minRadius: 30,
-                                )),
-                            trailing: IconButton(
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    child: NavigationRail(
+                        selectedLabelTextStyle:
+                            const TextStyle(color: Colors.greenAccent),
+                        backgroundColor: const Color(0xFF17203A),
+                        elevation: 20,
+                        selectedIconTheme:
+                            const IconThemeData(color: Colors.greenAccent),
+                        leading: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onDoubleTap: () {
+                              settings.toggleHentai();
+                              setState(() {});
+                              Toast.show(
+                                  settings.enableHentai
+                                      ? "Pheww Hentai enabled"
+                                      : "Dang! Hentai disabled",
+                                  duration: Toast.lengthShort);
+                            },
+                            child: CircleAvatar(
+                              backgroundImage: AssetImage(
+                                settings.enableHentai
+                                    ? "assets/images/female.jpg"
+                                    : "assets/images/profilePic.jpg",
+                              ),
+                              minRadius: 30,
+                            )),
+                        trailing: screen.height > 400
+                            ? IconButton(
                                 icon: const Icon(Icons.close),
                                 focusColor: Colors.redAccent,
                                 hoverColor: Colors.redAccent,
@@ -100,48 +97,51 @@ class LayoutCompState extends State<LayoutComp> {
                                 onPressed: () {
                                   SystemNavigator.pop();
                                   exit(0);
-                                }),
-                            onDestinationSelected: (value) {
-                              setState(() {
-                                index = value;
-                              });
-                            },
-                            labelType: NavigationRailLabelType.selected,
-                            destinations: const [
-                              NavigationRailDestination(
-                                icon: Icon(Icons.trending_up),
-                                selectedIcon: Icon(Icons.trending_up),
-                                label: Text('Trends'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.bookmark_border),
-                                selectedIcon: Icon(Icons.book),
-                                label: Text('Later'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.search_rounded),
-                                selectedIcon: Icon(Icons.search_rounded),
-                                label: Text('Search'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(Icons.all_inclusive_sharp),
-                                selectedIcon: Icon(Icons.all_inclusive_sharp),
-                                label: Text('Recent'),
-                              ),
-                              NavigationRailDestination(
-                                icon: Icon(
-                                  Icons.schedule,
-                                  semanticLabel: "Schedule",
-                                ),
-                                selectedIcon: Icon(Icons.schedule),
-                                label: Text('Schedule'),
-                              ),
-                            ],
-                            selectedIndex: index),
-                      ),
-                    ),
+                                })
+                            : null,
+                        onDestinationSelected: (value) {
+                          setState(() {
+                            index = value;
+                          });
+                        },
+                        labelType: NavigationRailLabelType.selected,
+                        destinations: const [
+                          NavigationRailDestination(
+                            icon: Icon(Icons.trending_up),
+                            selectedIcon: Icon(Icons.trending_up),
+                            label: Text('Trends'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.bookmark_border),
+                            selectedIcon: Icon(Icons.book),
+                            label: Text('Later'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.search_rounded),
+                            selectedIcon: Icon(Icons.search_rounded),
+                            label: Text('Search'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(Icons.all_inclusive_sharp),
+                            selectedIcon: Icon(Icons.all_inclusive_sharp),
+                            label: Text('Recent'),
+                          ),
+                          NavigationRailDestination(
+                            icon: Icon(
+                              Icons.schedule,
+                              semanticLabel: "Schedule",
+                            ),
+                            selectedIcon: Icon(Icons.schedule),
+                            label: Text('Schedule'),
+                          ),
+                        ],
+                        selectedIndex: index),
                   ),
-                  pages[index]
+                  Expanded(
+                    child: Container(
+                      child: pages[index],
+                    ),
+                  )
                 ],
               )
             : Container(

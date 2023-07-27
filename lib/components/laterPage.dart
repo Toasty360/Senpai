@@ -70,6 +70,7 @@ class _LaterState extends State<Later> {
   void initState() {
     super.initState();
     getPermissions();
+    Hive.box("Later").flush();
   }
 
   Widget listItems() {

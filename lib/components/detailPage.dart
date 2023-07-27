@@ -353,21 +353,24 @@ class _detailPageState extends State<detailPage>
                 )),
             Positioned(
                 bottom: 100,
-                right: 0,
-                child: SizedBox(
-                  width: screen.width * 0.48,
+                // right: 0,
+                left: 183,
+                child: Container(
+                  // padding: const EdgeInsets.symmetric(horizontal: 2),
+                  width: screen.width * 0.40,
                   child: Text(
                     anime.title,
                     maxLines: 3,
                     style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.greenAccent),
                   ),
                 )),
             Positioned(
                 bottom: 20,
-                right: 20,
+                // right: 20,
+                left: 183,
                 child: SizedBox(
                   width: 150,
                   child: Wrap(
@@ -426,13 +429,6 @@ class _detailPageState extends State<detailPage>
                     ],
                   ),
                 )),
-            isLoaded
-                ? Positioned(
-                    bottom: 10,
-                    right: screen.width * 0.25,
-                    child: Center(),
-                  )
-                : const Center()
           ],
         ),
       ),
@@ -457,14 +453,20 @@ class _detailPageState extends State<detailPage>
       ),
       isLoaded && anime.nextAiringEpisode != 0
           ? Container(
+              width: screen.width,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Row(
                 children: [
                   const Text("Next Episode at:  "),
-                  Text(
-                    "${DateTime.fromMillisecondsSinceEpoch(anime.nextAiringEpisode! * 1000).toLocal()}",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                  Expanded(
+                    child: Text(
+                      "${DateTime.fromMillisecondsSinceEpoch(anime.nextAiringEpisode! * 1000).toLocal()}",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   )
                 ],
               ))
@@ -1142,96 +1144,101 @@ class _detailPageState extends State<detailPage>
   @override
   Widget build(BuildContext context) {
     final screen = MediaQuery.of(context).size;
-    return Scaffold(
-        extendBodyBehindAppBar: true,
-        resizeToAvoidBottomInset: false,
-        backgroundColor: const Color.fromRGBO(23, 32, 58, 1),
-        // appBar: AppBar(
-        //   backgroundColor: Colors.transparent,
-        //   surfaceTintColor: Colors.transparent,
-        //   elevation: 0,
-        //   title: InkWell(
-        //     radius: 0,
-        //     onTap: () {
-        //       if (scrollController.hasClients) {
-        //         scrollController.animateTo(0,
-        //             duration:
-        //                 const Duration(milliseconds: 500), //duration of scroll
-        //             curve: Curves.fastOutSlowIn);
-        //       }
-        //     },
-        //     child: Text(
-        //       anime.title,
-        //     ),
-        //   ),
-        //   actions: [
-        //     screen.width >= 600
-        //         ? Container(
-        //             height: 50,
-        //             width: 220,
-        //             alignment: Alignment.center,
-        //             child: ListTile(
-        //                 title: const Text(
-        //                   "Default Quality",
-        //                   style: TextStyle(fontSize: 15),
-        //                 ),
-        //                 trailing: TextButton(
-        //                   onPressed: () {
-        //                     settings.qualityChoice == "default"
-        //                         ? settings.qualityChoice = "360p"
-        //                         : settings.qualityChoice = "default";
-        //                     print(settings.qualityChoice);
-        //                     setState(() {});
-        //                   },
-        //                   child: Text(
-        //                     settings.qualityChoice == "default"
-        //                         ? "High"
-        //                         : "Low",
-        //                     style: const TextStyle(color: Colors.blue),
-        //                   ),
-        //                 )))
-        //         : const Center(),
-        //     // InkWell(
-        //     //   radius: 0,
-        //     //   onTap: () async {
-        //     //     if (isSaved) {
-        //     //       isSaved = await _removeItem();
-        //     //       _animationController.reverse();
-        //     //     } else {
-        //     //       isSaved = await _saveItem();
-        //     //       _animationController.forward();
-        //     //     }
-        //     //     setState(() {});
-        //     //   },
-        //     //   child: Lottie.network(
-        //     //       "https://assets8.lottiefiles.com/packages/lf20_nF4sSU5agv.json",
-        //     //       controller: _animationController),
-        //     // ),
-        //     // IconButton(
-        //     //   onPressed: () async {
-        //     //     if (isSaved) {
-        //     //       isSaved = await _removeItem();
-        //     //     } else {
-        //     //       isSaved = await _saveItem();
-        //     //     }
-        //     //     setState(() {});
-        //     //   },
-        //     //   icon: Icon(MdiIcons.bookmark),
-        //     //   tooltip: isSaved ? "Remove?" : "Save for Later!",
-        //     //   color: isSaved ? Colors.greenAccent : Colors.white,
-        //     // )
-        //   ],
-        // ),
-        body: Container(
-          child: ListView(
-              padding: EdgeInsets.zero,
-              controller: scrollController,
-              children: [
-                ...detailsPart(screen),
-                // ...animeDetailsWidget(screen),
-                ...episodesWidget(screen)
-              ]),
-        ));
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+          extendBodyBehindAppBar: true,
+          resizeToAvoidBottomInset: false,
+          backgroundColor: const Color.fromRGBO(23, 32, 58, 1),
+          // appBar: AppBar(
+          //   backgroundColor: Colors.transparent,
+          //   surfaceTintColor: Colors.transparent,
+          //   elevation: 0,
+          //   title: InkWell(
+          //     radius: 0,
+          //     onTap: () {
+          //       if (scrollController.hasClients) {
+          //         scrollController.animateTo(0,
+          //             duration:
+          //                 const Duration(milliseconds: 500), //duration of scroll
+          //             curve: Curves.fastOutSlowIn);
+          //       }
+          //     },
+          //     child: Text(
+          //       anime.title,
+          //     ),
+          //   ),
+          //   actions: [
+          //     screen.width >= 600
+          //         ? Container(
+          //             height: 50,
+          //             width: 220,
+          //             alignment: Alignment.center,
+          //             child: ListTile(
+          //                 title: const Text(
+          //                   "Default Quality",
+          //                   style: TextStyle(fontSize: 15),
+          //                 ),
+          //                 trailing: TextButton(
+          //                   onPressed: () {
+          //                     settings.qualityChoice == "default"
+          //                         ? settings.qualityChoice = "360p"
+          //                         : settings.qualityChoice = "default";
+          //                     print(settings.qualityChoice);
+          //                     setState(() {});
+          //                   },
+          //                   child: Text(
+          //                     settings.qualityChoice == "default"
+          //                         ? "High"
+          //                         : "Low",
+          //                     style: const TextStyle(color: Colors.blue),
+          //                   ),
+          //                 )))
+          //         : const Center(),
+          //     // InkWell(
+          //     //   radius: 0,
+          //     //   onTap: () async {
+          //     //     if (isSaved) {
+          //     //       isSaved = await _removeItem();
+          //     //       _animationController.reverse();
+          //     //     } else {
+          //     //       isSaved = await _saveItem();
+          //     //       _animationController.forward();
+          //     //     }
+          //     //     setState(() {});
+          //     //   },
+          //     //   child: Lottie.network(
+          //     //       "https://assets8.lottiefiles.com/packages/lf20_nF4sSU5agv.json",
+          //     //       controller: _animationController),
+          //     // ),
+          //     // IconButton(
+          //     //   onPressed: () async {
+          //     //     if (isSaved) {
+          //     //       isSaved = await _removeItem();
+          //     //     } else {
+          //     //       isSaved = await _saveItem();
+          //     //     }
+          //     //     setState(() {});
+          //     //   },
+          //     //   icon: Icon(MdiIcons.bookmark),
+          //     //   tooltip: isSaved ? "Remove?" : "Save for Later!",
+          //     //   color: isSaved ? Colors.greenAccent : Colors.white,
+          //     // )
+          //   ],
+          // ),
+          body: Container(
+            child: ListView(
+                padding: EdgeInsets.zero,
+                controller: scrollController,
+                children: [
+                  ...detailsPart(screen),
+                  // ...animeDetailsWidget(screen),
+                  ...episodesWidget(screen)
+                ]),
+          )),
+    );
   }
 
   Future<Map> downloadLinks(id) async {

@@ -245,9 +245,11 @@ class _CardsState extends State<Cards> {
                   )
             : widget.data.isNotEmpty
                 ? Container(
+                    height: screen.height,
                     margin: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 10),
                     child: GridView.builder(
+                      physics: const ClampingScrollPhysics(),
                       shrinkWrap: true,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: max(widthCount, minCount),
