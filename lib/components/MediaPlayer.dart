@@ -142,67 +142,74 @@ class _MediaPlayerState extends State<MediaPlayer> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           InkWell(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: const Color(0xFF17203A),
-                showDragHandle: true,
-                isDismissible: true,
-                builder: (ctx) {
-                  return Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.only(left: 20),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            topRight: Radius.circular(10)),
-                      ),
-                      child: GridView.builder(
-                        cacheExtent: 20,
-                        padding: null,
-                        shrinkWrap: true,
-                        itemCount: quality.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: quality.length),
-                        itemBuilder: (context, index) {
-                          String _current = quality.keys.toList()[index];
-                          return Container(
-                            alignment: Alignment.center,
-                            child: InkWell(
-                                onTap: () {
-                                  currentQuality = quality[_current];
-                                  var duration =
-                                      _controller.sliderPosition.value;
-                                  settings.qualityChoice = _current;
-                                  ctx.navigator.pop();
-                                  setState(() {
-                                    _controller.setDataSource(
-                                      DataSource(
-                                        type: DataSourceType.network,
-                                        source: currentQuality,
-                                      ),
-                                      autoplay: true,
-                                    );
-                                    _controller.seekTo(duration);
-                                  });
-                                },
-                                child: Text(
-                                  quality.keys.toList()[index],
-                                  style: TextStyle(
-                                      color: settings.qualityChoice == _current
-                                          ? Colors.blueAccent
-                                          : Colors.white),
-                                )),
-                          );
-                        },
-                      ));
-                },
-              );
-            },
-            child: const Icon(Icons.high_quality),
+            child: PopupMenuButton(
+              icon: const Icon(Icons.high_quality_outlined),
+              itemBuilder: (context) {
+                return quality.keys
+                    .toList()
+                    .map((e) => PopupMenuItem(
+                          child: Center(
+                            child: Container(
+                              alignment: Alignment.center,
+                              width: 100,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: settings.qualityChoice == e
+                                      ? Colors.blueAccent
+                                      : null,
+                                  border: settings.qualityChoice != e
+                                      ? Border.all(
+                                          width: 1, color: Colors.white)
+                                      : null),
+                              child: Text(e),
+                            ),
+                          ),
+                          onTap: () {
+                            var duration = _controller.sliderPosition.value;
+                            settings.qualityChoice = e;
+                            setState(() {
+                              _controller.setDataSource(
+                                DataSource(
+                                  type: DataSourceType.network,
+                                  source: quality[e],
+                                ),
+                                autoplay: true,
+                              );
+                              _controller.seekTo(duration);
+                            });
+                          },
+                        ))
+                    .cast<PopupMenuItem>()
+                    .toList();
+              },
+            ),
           ),
+          // InkWell(
+          //   onTap: () {
+          //     showModalBottomSheet(
+          //       context: context,
+          //       backgroundColor: const Color(0xFF17203A),
+          //       showDragHandle: true,
+          //       isDismissible: true,
+          //       builder: (ctx) {
+          //         return Container(
+          //           alignment: Alignment.center,
+          //           margin: const EdgeInsets.only(left: 20),
+          //           padding: const EdgeInsets.symmetric(
+          //               horizontal: 10, vertical: 10),
+          //           decoration: const BoxDecoration(
+          //             borderRadius: BorderRadius.only(
+          //                 topLeft: Radius.circular(10),
+          //                 topRight: Radius.circular(10)),
+          //           ),
+          //         );
+          //       },
+          //     );
+          //   },
+          //   child: const Icon(Icons.high_quality),
+          // ),
           InkWell(
             child: IconButton(
                 onPressed: () {
@@ -271,3 +278,44 @@ class _MediaPlayerState extends State<MediaPlayer> {
     super.dispose();
   }
 }
+
+
+// GridView.builder(
+//                         cacheExtent: 20,
+//                         padding: null,
+//                         shrinkWrap: true,
+//                         itemCount: quality.length,
+//                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//                             crossAxisCount: quality.length),
+//                         itemBuilder: (context, index) {
+//                           String _current = quality.keys.toList()[index];
+//                           return Container(
+//                             alignment: Alignment.center,
+//                             child: InkWell(
+//                                 onTap: () {
+//                                   currentQuality = quality[_current];
+//                                   var duration =
+//                                       _controller.sliderPosition.value;
+//                                   settings.qualityChoice = _current;
+//                                   ctx.navigator.pop();
+//                                   setState(() {
+//                                     _controller.setDataSource(
+//                                       DataSource(
+//                                         type: DataSourceType.network,
+//                                         source: currentQuality,
+//                                       ),
+//                                       autoplay: true,
+//                                     );
+//                                     _controller.seekTo(duration);
+//                                   });
+//                                 },
+//                                 child: Text(
+//                                   quality.keys.toList()[index],
+//                                   style: TextStyle(
+//                                       color: settings.qualityChoice == _current
+//                                           ? Colors.blueAccent
+//                                           : Colors.white),
+//                                 )),
+//                           );
+//                         },
+//                       )

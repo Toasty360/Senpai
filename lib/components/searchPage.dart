@@ -176,7 +176,7 @@ class _searchState extends State<search> {
                         border: Border.all(width: 1),
                         borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
+                        vertical: 10, horizontal: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

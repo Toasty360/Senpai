@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_meedu_videoplayer/meedu_player.dart';
@@ -1146,7 +1147,7 @@ class _detailPageState extends State<detailPage>
     final screen = MediaQuery.of(context).size;
     return GestureDetector(
       onHorizontalDragEnd: (details) {
-        Navigator.pop(context);
+        if (kIsWeb) Navigator.pop(context);
       },
       child: Scaffold(
           extendBodyBehindAppBar: true,

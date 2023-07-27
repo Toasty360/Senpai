@@ -59,8 +59,8 @@ class LayoutCompState extends State<LayoutComp> {
             ? Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                     child: NavigationRail(
                         selectedLabelTextStyle:
                             const TextStyle(color: Colors.greenAccent),
@@ -101,6 +101,7 @@ class LayoutCompState extends State<LayoutComp> {
                             : null,
                         onDestinationSelected: (value) {
                           setState(() {
+                            // _pageController.jumpToPage(value);
                             index = value;
                           });
                         },
