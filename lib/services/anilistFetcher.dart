@@ -281,7 +281,10 @@ class AniList {
   }
 
   static Future<List> fetchSteamingLinks(String id) async {
-    final v = await Dio().get("$base_url/meta/anilist/watch/$id");
+    final v = await Dio().get("$base_url/meta/anilist/watch/$id",
+        options: Options(
+            receiveTimeout: Duration(seconds: 2),
+            sendTimeout: Duration(milliseconds: 2)));
     return v.data["sources"];
   }
 }

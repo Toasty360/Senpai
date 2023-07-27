@@ -101,7 +101,7 @@ class _ScheduleState extends State<Schedule> {
                             },
                             child: Container(
                                 margin: const EdgeInsets.all(10),
-                                height: 190,
+                                height: 200,
                                 width: 200,
                                 padding: const EdgeInsets.only(
                                     top: 10, bottom: 10, left: 5),

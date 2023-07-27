@@ -25,13 +25,14 @@ class LayoutComp extends StatefulWidget {
 class LayoutCompState extends State<LayoutComp> {
   ScrollController scrollController = ScrollController();
   final PageController _pageController = PageController(initialPage: 1);
+  late ShakeDetector detector;
 
   int index = 1;
   @override
   void initState() {
     super.initState();
     if (!kIsWeb) {
-      ShakeDetector detector = ShakeDetector.autoStart(onPhoneShake: () {
+      detector = ShakeDetector.autoStart(onPhoneShake: () {
         print("shaked");
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => const RandomSplash()));
@@ -212,6 +213,7 @@ class LayoutCompState extends State<LayoutComp> {
   @override
   void dispose() {
     _pageController.dispose();
+    detector.stopListening();
     super.dispose();
   }
 }

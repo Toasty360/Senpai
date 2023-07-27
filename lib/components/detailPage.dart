@@ -8,7 +8,7 @@ import 'package:flutter_meedu_videoplayer/meedu_player.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:lottie/lottie.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:flutter/services.dart';
 import 'package:senpai/components/MediaPlayer.dart';
 import 'package:senpai/data/anime.dart';
 import 'package:senpai/services/anilistFetcher.dart';
@@ -489,9 +489,9 @@ class _detailPageState extends State<detailPage>
                         color: Colors.greenAccent),
                   ),
                   SizedBox(
-                    height: showmore || anime.desc.length < 30 ? null : 100,
+                    height: showmore || anime.desc.length >= 200 ? 100 : null,
                     child: Text(
-                      anime.desc,
+                      anime.desc.trim(),
                       textAlign: TextAlign.justify,
                     ),
                   ),
@@ -1145,6 +1145,10 @@ class _detailPageState extends State<detailPage>
   @override
   Widget build(BuildContext context) {
     final screen = MediaQuery.of(context).size;
+    // ignore: prefer_const_constructors
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarColor: Colors.transparent));
     return GestureDetector(
       onHorizontalDragEnd: (details) {
         if (kIsWeb) Navigator.pop(context);
