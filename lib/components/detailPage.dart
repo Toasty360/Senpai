@@ -218,6 +218,7 @@ class _detailPageState extends State<detailPage>
   late final AnimationController _animationController;
 
   bool showmore = false;
+  bool showtitle = false;
 
   @override
   void initState() {
@@ -229,6 +230,10 @@ class _detailPageState extends State<detailPage>
       duration: const Duration(seconds: 1),
       vsync: this,
     );
+    scrollController.addListener(() {
+      showtitle = scrollController.offset > 200;
+      setState(() {});
+    });
     setState(() {
       getDownloads();
     });
@@ -430,6 +435,25 @@ class _detailPageState extends State<detailPage>
                     ],
                   ),
                 )),
+            Positioned(
+              top: 10,
+              right: 20,
+              child: screen.width > 600
+                  ? Container(
+                      alignment: Alignment.centerRight,
+                      decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color.fromARGB(52, 68, 137, 255)),
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.close),
+                        tooltip: "Close",
+                      ),
+                    )
+                  : const Center(),
+            )
           ],
         ),
       ),
@@ -474,7 +498,7 @@ class _detailPageState extends State<detailPage>
           : const Center(),
       anime.desc != ""
           ? Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               width: screen.width,
               child: ListView(
                 padding: EdgeInsets.zero,
@@ -489,35 +513,28 @@ class _detailPageState extends State<detailPage>
                         color: Colors.greenAccent),
                   ),
                   SizedBox(
-                    height: showmore || anime.desc.length >= 200 ? 100 : null,
+                    height: showmore
+                        ? null
+                        : anime.desc.length > 200
+                            ? 100
+                            : null,
                     child: Text(
                       anime.desc.trim(),
                       textAlign: TextAlign.justify,
                     ),
                   ),
-                  !showmore
-                      ? Container(
-                          width: screen.width,
-                          child: InkWell(
-                              onTap: () {
-                                showmore = !showmore;
-                                setState(() {});
-                              },
-                              child: Container(
-                                alignment: Alignment.centerRight,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                child: const Text(
-                                  "More",
-                                  style: TextStyle(color: Colors.deepPurple),
-                                ),
-                              )),
-                        )
-                      : const Center()
                 ],
               ),
             )
           : const Center(),
+      !showmore && anime.desc.length >= 200
+          ? TextButton(
+              onPressed: () {
+                showmore = !showmore;
+                setState(() {});
+              },
+              child: Text("More"))
+          : const Center()
     ];
   }
 
@@ -835,6 +852,7 @@ class _detailPageState extends State<detailPage>
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: screen.width >= 600 ? 3 : 1,
                     childAspectRatio: 16 / 9,
+                    mainAxisExtent: 200,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10),
                 scrollDirection: Axis.vertical,
@@ -1150,13 +1168,19 @@ class _detailPageState extends State<detailPage>
         systemNavigationBarDividerColor: Colors.transparent,
         statusBarColor: Colors.transparent));
     return GestureDetector(
-      onHorizontalDragEnd: (details) {
-        if (kIsWeb) Navigator.pop(context);
-      },
+      // onHorizontalDragEnd: (details) {
+      //   if (kIsWeb || screen.width > 600) Navigator.pop(context);
+      // },
       child: Scaffold(
           extendBodyBehindAppBar: true,
           resizeToAvoidBottomInset: false,
           backgroundColor: const Color.fromRGBO(23, 32, 58, 1),
+          appBar: showtitle
+              ? AppBar(
+                  backgroundColor: const Color.fromRGBO(23, 32, 58, 1),
+                  title: Text(anime.title),
+                )
+              : null,
           // appBar: AppBar(
           //   backgroundColor: Colors.transparent,
           //   surfaceTintColor: Colors.transparent,

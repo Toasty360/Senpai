@@ -31,13 +31,13 @@ class LayoutCompState extends State<LayoutComp> {
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) {
-      detector = ShakeDetector.autoStart(onPhoneShake: () {
-        print("shaked");
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const RandomSplash()));
-      });
-    }
+    // if (!kIsWeb) {
+    //   detector = ShakeDetector.waitForStart(onPhoneShake: () {
+    //     Navigator.push(context,
+    //         MaterialPageRoute(builder: (context) => const RandomSplash()));
+    //   });
+    // }
+    // detector.startListening();
   }
 
   @override
